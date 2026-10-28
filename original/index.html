@@ -1,0 +1,1081 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Externals Organizer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an editorial study almanac. Cream masthead with ledger stats, a serif hero that says what today holds beside a dark countdown panel,
+   cream feature cards for each day, a dark "today" column in the week, and a reading-room drawer for lessons. */
+:root {
+  --canvas: #faf9f5; --soft: #f5f0e8; --card: #efe9de; --cream-strong: #e8e0d2;
+  --ink: #141413; --body: #3d3d3a; --muted: #6c6a64; --muted-soft: #8e8b82;
+  --line: #e6dfd8; --line-soft: #ebe6df;
+  --coral: #cc785c; --coral-active: #a9583e; --on-coral: #ffffff; --coral-soft: #f3dfd5;
+  --dark: #181715; --dark-el: #252320; --dark-soft: #1f1e1b; --on-dark: #faf9f5; --on-dark-soft: #a09d96; --dark-line: #34312c;
+  --ok: #3f9a57; --ok-soft: #dcefdf; --warn: #a57a12; --warn-soft: #f4e8c8; --bad: #c64545; --bad-soft: #f6dcd8;
+  --t0: #3d7d70; --t1: #b7822f; --t2: #6e7d3c; --t3: #8d5470; --t4: #50698a; --t5: #a4573a;
+  --shadow: 0 1px 3px rgba(20,20,19,.08);
+  --f-display: "Newsreader", "Tiempos Headline", Georgia, "Times New Roman", serif;
+  --f-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --canvas: #1a1917; --soft: #201f1c; --card: #26241f; --cream-strong: #302d28;
+  --ink: #f3efe7; --body: #d6d1c7; --muted: #a8a399; --muted-soft: #85817a;
+  --line: #34312c; --line-soft: #2c2a26;
+  --coral: #d98b6f; --coral-active: #e8a185; --on-coral: #1a1917; --coral-soft: #3b2a22;
+  --dark: #0f0e0d; --dark-el: #1d1c1a; --dark-soft: #151413; --on-dark: #f3efe7; --on-dark-soft: #a09d96; --dark-line: #2e2c28;
+  --ok: #6cc184; --ok-soft: #1d3324; --warn: #dcb04a; --warn-soft: #362d14; --bad: #e57a72; --bad-soft: #3b1f1c;
+  --t0: #6fb6a6; --t1: #e0a95a; --t2: #a3b56a; --t3: #cf8eac; --t4: #8eaad0; --t5: #df8d6b;
+  --shadow: 0 1px 3px rgba(0,0,0,.4); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --canvas: #1a1917; --soft: #201f1c; --card: #26241f; --cream-strong: #302d28;
+  --ink: #f3efe7; --body: #d6d1c7; --muted: #a8a399; --muted-soft: #85817a;
+  --line: #34312c; --line-soft: #2c2a26;
+  --coral: #d98b6f; --coral-active: #e8a185; --on-coral: #1a1917; --coral-soft: #3b2a22;
+  --dark: #0f0e0d; --dark-el: #1d1c1a; --dark-soft: #151413; --on-dark: #f3efe7; --on-dark-soft: #a09d96; --dark-line: #2e2c28;
+  --ok: #6cc184; --ok-soft: #1d3324; --warn: #dcb04a; --warn-soft: #362d14; --bad: #e57a72; --bad-soft: #3b1f1c;
+  --t0: #6fb6a6; --t1: #e0a95a; --t2: #a3b56a; --t3: #cf8eac; --t4: #8eaad0; --t5: #df8d6b;
+  --shadow: 0 1px 3px rgba(0,0,0,.4); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { background: var(--canvas); color: var(--body); }
+body { font-family: var(--f-body); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: var(--coral); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; color: var(--ink); text-wrap: balance; margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); }
+.label { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.muted { color: var(--muted); }
+.serif { font-family: var(--f-display); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* ---------- masthead ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--canvas) 90%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 14px 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand svg { flex: none; }
+.brand h1 { font-size: 23px; letter-spacing: -.3px; line-height: 1.1; }
+.brand .date { display: block; font-family: var(--f-display); font-style: italic; color: var(--muted); font-size: 14.5px; line-height: 1.2; }
+.ledger { display: flex; gap: 0; align-items: stretch; }
+.ledger > div { display: grid; padding: 0 16px; border-left: 1px solid var(--line); line-height: 1.1; }
+.ledger > div:first-child { border-left: 0; padding-left: 0; }
+.ledger b { font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--ink); letter-spacing: -.3px; }
+.ledger span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; }
+.tab { border: 0; background: transparent; padding: 8px 14px; border-radius: var(--r-md); color: var(--muted); font-weight: 500; font-size: 14px; cursor: pointer; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
+.tab:hover { color: var(--ink); }
+.tab .sh { display: none; }
+@media (max-width: 480px) { .tab { padding: 8px 11px; } .tab .lg { display: none; } .tab .sh { display: inline; } }
+.tab[aria-selected="true"] { background: var(--card); color: var(--ink); }
+.badge { background: var(--coral); color: var(--on-coral); border-radius: 999px; font-size: 11px; font-weight: 600; padding: 1px 7px; min-width: 20px; text-align: center; }
+.badge.zero { background: var(--cream-strong); color: var(--muted); }
+@media (max-width: 640px) {
+  .ledger b { font-size: 19px; } .ledger > div { padding: 0 10px; }
+  .brand h1 { font-size: 20px; }
+}
+
+main.wrap { padding-block: 36px 96px; }
+.banner { padding: 16px 20px; border-radius: var(--r-lg); background: var(--warn-soft); color: var(--ink); }
+
+/* ---------- generic ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 10px 18px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--canvas); cursor: pointer; font-weight: 500; font-size: 14px; line-height: 1; text-decoration: none; color: var(--ink); }
+.btn:hover { border-color: var(--muted-soft); }
+.btn.primary { background: var(--coral); border-color: var(--coral); color: var(--on-coral); }
+.btn.primary:hover, .btn.primary:active { background: var(--coral-active); border-color: var(--coral-active); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); }
+.btn.small { min-height: 32px; padding: 6px 12px; font-size: 13px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.circle { width: 36px; min-height: 36px; padding: 0; border-radius: 999px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spread { display: flex; gap: 10px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.stack { display: grid; gap: 20px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; white-space: nowrap; background: var(--card); color: var(--ink); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.info { background: var(--cream-strong); color: var(--ink); }
+.pill.plain { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+.pill.coral { background: var(--coral); color: var(--on-coral); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.tdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; background: var(--tc, var(--coral)); }
+.tname { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; font-size: 13px; color: var(--ink); }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.sec-head h2 { font-size: 36px; letter-spacing: -.5px; line-height: 1.15; }
+.sec-head p { margin: 0; color: var(--muted); font-size: 14px; max-width: 46ch; }
+.empty { padding: 48px 32px; text-align: center; color: var(--muted); background: var(--soft); border-radius: var(--r-lg); }
+.empty h3 { font-size: 28px; letter-spacing: -.3px; margin-bottom: 8px; }
+.empty p { margin: 0 auto; max-width: 44ch; }
+
+/* ---------- today: hero ---------- */
+.hero-band { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 24px; align-items: stretch; margin-bottom: 40px; }
+@media (max-width: 860px) { .hero-band { grid-template-columns: minmax(0, 1fr); } }
+.hero-text { display: grid; gap: 14px; align-content: center; }
+.hero-text h2 { font-size: clamp(36px, 5.4vw, 56px); line-height: 1.06; letter-spacing: -1.2px; }
+.hero-text h2 em { font-style: italic; color: var(--coral); }
+.hero-text .lede { font-size: 18px; line-height: 1.5; color: var(--body); max-width: 52ch; margin: 0; }
+.countdown { background: var(--dark); color: var(--on-dark); border-radius: var(--r-xl); padding: 28px; display: grid; gap: 16px; align-content: space-between; min-height: 230px; position: relative; overflow: hidden; }
+.countdown .label { color: var(--on-dark-soft); }
+.countdown .big { display: flex; align-items: baseline; gap: 10px; }
+.countdown .big b { font-family: var(--f-display); font-weight: 400; font-size: 96px; line-height: .9; letter-spacing: -3px; color: var(--on-dark); }
+.countdown .big span { font-family: var(--f-display); font-style: italic; font-size: 22px; color: var(--on-dark-soft); }
+.countdown h3 { color: var(--on-dark); font-size: 22px; line-height: 1.25; letter-spacing: -.2px; }
+.countdown .sub { color: var(--on-dark-soft); font-size: 13px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.countdown .tname { color: var(--on-dark); }
+.countdown .ticks { position: absolute; right: 22px; top: 24px; display: flex; gap: 4px; }
+.countdown .ticks i { width: 6px; height: 22px; border-radius: 3px; background: var(--dark-line); }
+.countdown .ticks i.on { background: var(--coral); }
+
+/* ---------- today: grid ---------- */
+.today-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .today-grid { grid-template-columns: minmax(0,1fr); } }
+.daycard { background: var(--card); border-radius: var(--r-lg); padding: 32px; display: grid; gap: 18px; }
+.daycard .meta { display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.daycard .dnum { font-family: var(--f-display); font-style: italic; color: var(--muted); font-size: 15px; }
+.daycard h3 { font-size: 30px; line-height: 1.18; letter-spacing: -.4px; }
+.daycard .focus { margin: -6px 0 0; color: var(--muted); font-size: 15.5px; }
+.segs { display: flex; gap: 4px; }
+.segs i { flex: 1; height: 4px; border-radius: 2px; background: var(--cream-strong); }
+.segs i.on { background: var(--tc, var(--coral)); }
+.daycard .foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 4px; }
+.daycard .foot .count { margin-left: auto; font-family: var(--f-display); font-size: 20px; color: var(--ink); }
+.daycard .foot .count small { font-family: var(--f-body); font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-left: 4px; }
+
+/* tasks */
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; }
+.task { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; gap: 12px; align-items: start; padding: 11px 4px; border-top: 1px solid var(--line); }
+.task:first-child { border-top: 0; }
+.task input { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin: 1px 0 0; border-radius: 50%; border: 1.5px solid var(--muted-soft); background: var(--canvas); cursor: pointer; display: grid; place-content: center; transition: background .15s, border-color .15s; }
+.task input::after { content: ""; width: 9px; height: 5px; border: 2px solid var(--canvas); border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.task input:checked { background: var(--tc, var(--ok)); border-color: var(--tc, var(--ok)); }
+.task input:checked::after { opacity: 1; }
+.task input:disabled { cursor: default; opacity: .6; }
+.task .tx { min-width: 0; color: var(--ink); cursor: pointer; overflow-wrap: anywhere; }
+.task .tx code { font-family: var(--f-mono); font-size: .86em; background: var(--cream-strong); padding: 1px 5px; border-radius: 4px; }
+.task.done .tx { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.task .mins { font-family: var(--f-mono); font-size: 12px; color: var(--muted); white-space: nowrap; padding-top: 2px; }
+.task a.lc { font-size: 12.5px; font-weight: 500; text-decoration: none; margin-left: 8px; white-space: nowrap; color: var(--coral); }
+
+/* rail */
+.rail { display: grid; gap: 20px; }
+.rcard { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; display: grid; gap: 14px; background: var(--canvas); }
+.ringrow { display: grid; grid-template-columns: 112px minmax(0,1fr); gap: 18px; align-items: center; }
+.ring { position: relative; width: 112px; height: 112px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.05; }
+.ring .c b { font-family: var(--f-display); font-weight: 400; font-size: 26px; color: var(--ink); letter-spacing: -.5px; }
+.ring .c span { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.legend { display: grid; gap: 6px; font-size: 13px; }
+.legend div { display: flex; gap: 8px; align-items: center; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 21px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
+.timeline li { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 12px; padding: 7px 0; position: relative; }
+.timeline .when { text-align: center; background: var(--canvas); position: relative; line-height: 1; padding-block: 2px; }
+.timeline .when b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--ink); }
+.timeline .when span { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+.timeline .what { font-weight: 500; color: var(--ink); line-height: 1.35; font-size: 14px; }
+.timeline .rel { font-size: 12.5px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 3px; }
+.timeline li.soon .when b { color: var(--coral); }
+.cu-mini b { font-family: var(--f-display); font-weight: 400; font-size: 34px; color: var(--ink); line-height: 1; }
+
+/* ---------- week ---------- */
+.week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 10px; }
+@media (max-width: 980px) { .week { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 560px) { .week { grid-template-columns: minmax(0,1fr); } }
+.wcol { --wc-bg: var(--soft); --wc-ink: var(--ink); --wc-muted: var(--muted); --wc-item: var(--canvas); --wc-line: var(--line);
+  background: var(--wc-bg); color: var(--wc-ink); border-radius: var(--r-lg); padding: 16px 12px 14px; display: grid; gap: 10px; align-content: start; min-height: 220px; }
+.wcol.is-today { --wc-bg: var(--dark); --wc-ink: var(--on-dark); --wc-muted: var(--on-dark-soft); --wc-item: var(--dark-el); --wc-line: var(--dark-line); }
+.wcol.past { opacity: .72; }
+.wcol > * { min-width: 0; }
+.witem .t, .flag { overflow-wrap: anywhere; }
+.wcol .wd { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.wcol .wd b { font-family: var(--f-display); font-weight: 400; font-size: 40px; line-height: .95; letter-spacing: -1px; color: var(--wc-ink); }
+.wcol .wd span { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--wc-muted); text-align: right; }
+.wcol .wd span em { display: block; font-style: normal; color: var(--coral); }
+.load { display: grid; gap: 4px; }
+.load .bar { height: 3px; border-radius: 2px; background: var(--wc-line); overflow: hidden; }
+.load .bar span { display: block; height: 100%; background: var(--wc-muted); }
+.load .bar span.over { background: var(--bad); }
+.load .cap { font-family: var(--f-mono); font-size: 11px; color: var(--wc-muted); }
+.witem { text-align: left; border: 1px solid var(--wc-line); border-radius: var(--r-md); padding: 10px; background: var(--wc-item); color: var(--wc-ink); cursor: pointer; display: grid; gap: 6px; width: 100%; }
+.witem:hover { border-color: var(--tc, var(--coral)); }
+.witem .tname { color: var(--wc-muted); font-size: 11.5px; }
+.witem .t { font-family: var(--f-display); font-size: 16px; line-height: 1.25; color: var(--wc-ink); }
+.witem .s { font-size: 11.5px; color: var(--wc-muted); display: flex; justify-content: space-between; gap: 6px; }
+.witem .s .fin { color: var(--ok); font-weight: 500; }
+.flag { font-size: 12px; font-weight: 500; color: var(--on-coral); background: var(--coral); border-radius: var(--r-sm); padding: 6px 8px; line-height: 1.3; }
+.free { font-family: var(--f-display); font-style: italic; color: var(--wc-muted); font-size: 15px; }
+
+/* ---------- goals ---------- */
+.goals { display: grid; gap: 48px; }
+.tracklist { display: grid; }
+.goal-row { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 24px; padding-block: 32px; border-top: 1px solid var(--line); }
+.goal-row:first-child { border-top: 0; padding-top: 0; }
+@media (max-width: 640px) { .goal-row { grid-template-columns: minmax(0,1fr); gap: 10px; } }
+.rankcol { display: grid; gap: 10px; align-content: start; justify-items: start; }
+.rankno { font-family: var(--f-display); font-size: 72px; line-height: .85; letter-spacing: -2px; color: var(--tc); }
+.rankbtns { display: flex; gap: 6px; }
+@media (max-width: 640px) { .rankcol { grid-template-columns: auto auto; align-items: end; justify-content: space-between; width: 100%; } .rankno { font-size: 56px; } }
+.goal-body { display: grid; gap: 16px; min-width: 0; }
+.goal-body h3 { font-size: 30px; letter-spacing: -.4px; line-height: 1.15; }
+.goal-body .goaltext { margin: 0; font-size: 16px; color: var(--body); max-width: 68ch; }
+.goal-body .goaltext code { font-family: var(--f-mono); font-size: .86em; background: var(--card); padding: 1px 5px; border-radius: 4px; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.facts > div { padding: 16px 18px; display: grid; gap: 6px; border-left: 1px solid var(--line); min-width: 0; }
+.facts > div:first-child { border-left: 0; }
+.facts .v { font-family: var(--f-display); font-size: 22px; color: var(--ink); line-height: 1.15; letter-spacing: -.2px; }
+.facts .v small { font-family: var(--f-body); font-size: 12.5px; color: var(--muted); margin-left: 4px; }
+@media (max-width: 640px) { .facts { grid-template-columns: minmax(0,1fr); } .facts > div { border-left: 0; border-top: 1px solid var(--line); } .facts > div:first-child { border-top: 0; } }
+.progressbar { height: 4px; background: var(--cream-strong); border-radius: 99px; overflow: hidden; }
+.progressbar > span { display: block; height: 100%; background: var(--tc, var(--coral)); border-radius: 99px; }
+.mslist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.mslist li { display: flex; gap: 12px; align-items: baseline; font-size: 14.5px; color: var(--ink); min-width: 0; }
+.mslist li .d { font-family: var(--f-mono); font-size: 12px; color: var(--muted); min-width: 56px; flex: none; }
+.mslist li.past { color: var(--muted-soft); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted-soft) 60%, transparent); }
+.mslist li.past .d { text-decoration: none; }
+.mslist a { overflow-wrap: anywhere; }
+.files { background: var(--soft); border-radius: var(--r-lg); padding: 16px 18px; display: grid; gap: 10px; }
+.fchip { display: inline-flex; align-items: center; gap: 2px; padding: 3px 4px 3px 10px; border-radius: 999px; background: var(--canvas); border: 1px solid var(--line); font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
+.goal-foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.goal-foot .muted { font-size: 13px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 20px; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0,1fr); } }
+.feature { background: var(--card); border-radius: var(--r-lg); padding: 32px; display: grid; gap: 16px; align-content: start; }
+.feature h3 { font-size: 28px; letter-spacing: -.3px; }
+.feature p { margin: 0; }
+.avail { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 6px; }
+.avail label { display: grid; gap: 6px; text-align: center; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.avail input { width: 100%; text-align: center; padding: 10px 2px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--canvas); font-family: var(--f-display); font-size: 20px; color: var(--ink); -moz-appearance: textfield; }
+.avail input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.bigstats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.bigstats > div { display: grid; gap: 2px; }
+.bigstats b { font-family: var(--f-display); font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: -1px; color: var(--ink); }
+.bigstats b.sm { font-size: 30px; }
+.bars { display: grid; gap: 10px; }
+.bars .b { display: grid; grid-template-columns: minmax(0, 120px) minmax(0,1fr) 34px; gap: 10px; align-items: center; font-size: 13px; }
+.bars .b .track { height: 8px; border-radius: 4px; background: var(--cream-strong); overflow: hidden; }
+.bars .b .track span { display: block; height: 100%; background: var(--tc); border-radius: 4px; }
+.bars .b .n { font-family: var(--f-mono); font-size: 12px; color: var(--muted); text-align: right; }
+
+/* form fields */
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-weight: 500; font-size: 13.5px; color: var(--ink); }
+.field input, .field textarea, .field select { padding: 10px 14px; min-height: 40px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--canvas); width: 100%; color: var(--ink); }
+.field input:focus, .field textarea:focus, .avail input:focus, .composer textarea:focus { outline: none; border-color: var(--coral); box-shadow: 0 0 0 3px color-mix(in srgb, var(--coral) 18%, transparent); }
+.field textarea { min-height: 84px; resize: vertical; }
+
+/* dark band: add a goal */
+.band-dark { background: var(--dark); color: var(--on-dark); border-radius: var(--r-lg); padding-block: 48px; padding-inline: clamp(20px, 5vw, 56px); display: grid; gap: 22px; }
+.band-dark h3 { color: var(--on-dark); font-size: 36px; letter-spacing: -.5px; }
+.band-dark p { color: var(--on-dark-soft); margin: 0; max-width: 60ch; }
+.band-dark .field label { color: var(--on-dark); }
+.band-dark .field input, .band-dark .field textarea { background: var(--dark-el); border-color: var(--dark-line); color: var(--on-dark); }
+.band-dark .field input::placeholder, .band-dark .field textarea::placeholder { color: var(--on-dark-soft); opacity: .7; }
+.band-dark .muted { color: var(--on-dark-soft); }
+.band-dark .btn:not(.primary) { background: var(--dark-el); border-color: var(--dark-line); color: var(--on-dark); }
+.band-dark .preview { background: var(--dark-el); }
+.band-dark .preview .mslist li { color: var(--on-dark); }
+.band-dark .preview .mslist .d, .band-dark .preview .label { color: var(--on-dark-soft); }
+.preview .preview { background: var(--canvas); }
+.preview { background: var(--soft); border-radius: var(--r-lg); padding: 18px 20px; display: grid; gap: 12px; }
+
+/* ---------- catch-up ---------- */
+.callout { background: var(--coral); color: var(--on-coral); border-radius: var(--r-lg); padding-block: 40px; padding-inline: clamp(20px, 5vw, 48px); display: flex; gap: 16px 40px; align-items: end; justify-content: space-between; flex-wrap: wrap; margin-bottom: 28px; }
+.callout .lab { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+.callout h2 { color: var(--on-coral); font-size: clamp(30px, 4vw, 44px); letter-spacing: -.8px; line-height: 1.1; }
+.callout p { margin: 6px 0 0; max-width: 46ch; opacity: .92; }
+.callout .figs { display: flex; gap: 32px; }
+.callout .figs b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 56px; line-height: .95; letter-spacing: -1.5px; }
+.callout .figs span { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.cu { display: grid; gap: 16px; }
+.cucard { background: var(--card); border-radius: var(--r-lg); padding: 24px 28px; display: grid; gap: 12px; }
+.cucard h3 { font-size: 23px; letter-spacing: -.2px; line-height: 1.25; }
+.late { font-family: var(--f-display); font-style: italic; color: var(--bad); font-size: 15px; }
+
+/* ---------- drawer ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(20,20,19,.42); z-index: 40; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(820px, 100%); background: var(--canvas); z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 60px rgba(20,20,19,.18); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.dhead { padding: 22px clamp(18px, 4vw, 40px) 0; display: grid; gap: 10px; border-bottom: 1px solid var(--line); background: var(--canvas); }
+.dhead .meta { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.dhead h2 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -.6px; line-height: 1.12; }
+.dtabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-block: 6px 12px; }
+.dbody { overflow-y: auto; padding: 28px clamp(18px, 4vw, 40px) 32px; flex: 1; min-height: 0; }
+
+/* lesson typography */
+.prose { max-width: 68ch; color: var(--body); font-size: 16px; line-height: 1.65; }
+.prose > :first-child { margin-top: 0; }
+.prose h2 { font-size: 28px; letter-spacing: -.3px; line-height: 1.2; margin: 34px 0 12px; }
+.prose h3 { font-size: 23px; letter-spacing: -.2px; line-height: 1.25; margin: 30px 0 10px; }
+.prose h4 { font-family: var(--f-body); font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
+.prose p { margin: 0 0 14px; }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose ul, .prose ol { margin: 0 0 14px; padding-left: 22px; }
+.prose li { margin: 5px 0; }
+.prose li::marker { color: var(--coral); }
+.prose code { font-family: var(--f-mono); font-size: .86em; background: var(--card); color: var(--ink); padding: 1px 6px; border-radius: 4px; }
+.codewin { background: var(--dark); border-radius: var(--r-lg); margin: 0 0 18px; overflow: hidden; }
+.codewin .cbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px 8px 16px; background: var(--dark-el); }
+.codewin .cbar span { font-family: var(--f-mono); font-size: 11.5px; color: var(--on-dark-soft); letter-spacing: .04em; }
+.codewin .cbar button { border: 0; background: transparent; color: var(--on-dark-soft); font-size: 12px; cursor: pointer; padding: 4px 8px; border-radius: var(--r-sm); }
+.codewin .cbar button:hover { color: var(--on-dark); background: var(--dark-soft); }
+.prose pre { background: transparent; color: var(--on-dark); padding: 16px 18px; overflow-x: auto; margin: 0; font-size: 13.5px; line-height: 1.6; }
+.prose pre code { background: none; padding: 0; font-size: inherit; color: inherit; border-radius: 0; }
+.prose blockquote { margin: 0 0 16px; padding: 4px 0 4px 20px; border-left: 2px solid var(--coral); font-family: var(--f-display); font-size: 19px; line-height: 1.5; color: var(--ink); }
+.prose blockquote p:last-child { margin: 0; }
+.prose details { border-radius: var(--r-lg); padding: 14px 18px; margin: 0 0 12px; background: var(--card); }
+.prose summary { cursor: pointer; font-weight: 500; color: var(--ink); list-style: none; display: flex; gap: 10px; align-items: baseline; }
+.prose summary::-webkit-details-marker { display: none; }
+.prose summary::before { content: "Self-check"; flex: none; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--coral); font-weight: 600; }
+.prose details[open] summary { margin-bottom: 10px; }
+.lesson-actions { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* chat */
+.chat { display: grid; gap: 14px; }
+.msg { padding: 14px 18px; border-radius: var(--r-lg); max-width: 100%; min-width: 0; }
+.msg.user { background: var(--dark); color: var(--on-dark); justify-self: end; max-width: 86%; white-space: pre-wrap; overflow-wrap: anywhere; border-bottom-right-radius: 4px; }
+.msg.ai { background: var(--card); border-bottom-left-radius: 4px; }
+.msg.ai.prose { font-size: 15px; max-width: 100%; }
+.chat-intro { background: var(--soft); border-radius: var(--r-lg); padding: 22px; color: var(--muted); }
+.chat-intro b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 22px; color: var(--ink); margin-bottom: 4px; }
+.composer { display: grid; gap: 10px; margin-top: 18px; position: sticky; bottom: -32px; background: var(--canvas); padding-block: 14px 0; }
+.composer textarea { width: 100%; min-height: 84px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--canvas); resize: vertical; font-family: var(--f-body); color: var(--ink); }
+.toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--dark); color: var(--on-dark); padding: 10px 18px; border-radius: var(--r-md); z-index: 60; font-weight: 500; font-size: 14px; box-shadow: var(--shadow); }
+
+/* loading */
+.loading { display: grid; gap: 12px; padding-block: 40px; }
+.loading h2 { font-size: 44px; letter-spacing: -1px; font-style: italic; color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawer { animation: slide .22s cubic-bezier(.2,.7,.2,1); }
+  .scrim { animation: fade .2s ease-out; }
+  @keyframes slide { from { transform: translateX(28px); opacity: .5; } to { transform: none; opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .view-in > * { animation: rise .35s cubic-bezier(.2,.7,.2,1) both; }
+  .view-in > *:nth-child(2) { animation-delay: .04s; } .view-in > *:nth-child(3) { animation-delay: .08s; }
+  @keyframes rise { from { transform: translateY(6px); } to { transform: none; } }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand">
+        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="14" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M17 3 A14 14 0 1 1 3.7 21.3" fill="none" stroke="var(--coral)" stroke-width="3" stroke-linecap="round"/><circle cx="17" cy="17" r="3" fill="var(--ink)"/></svg>
+        <div><h1>Externals Organizer</h1><span class="date" id="hdrDate"></span></div>
+      </div>
+      <div class="ledger" id="hdrStats"></div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-view="today" aria-selected="true">Today</button>
+      <button class="tab" role="tab" data-view="week" aria-selected="false">Week</button>
+      <button class="tab" role="tab" data-view="goals" aria-selected="false"><span class="lg">Goals &amp; deadlines</span><span class="sh">Goals</span></button>
+      <button class="tab" role="tab" data-view="catchup" aria-selected="false">Catch-up <span class="badge zero" id="cuBadge">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="loading"><span class="label">One moment</span><h2>Opening your plan…</h2></div>
+</main>
+
+<div id="drawerRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(() => {
+"use strict";
+// ---------- state ----------
+const S = { db: null, sample: null, tracks: {}, days: {}, progress: {}, sources: {}, settings: { hours: {0:180,1:90,2:90,3:90,4:90,5:90,6:180} },
+  view: "today", weekOffset: 0, loaded: { tracks: false, days: false }, dbFailed: false, open: null, openTab: "lesson" };
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const KIND = { lesson: "Lesson", mock: "Mock test", assessment: "Assessment", review: "Review", project: "Project" };
+
+// ---------- date helpers ----------
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+const todayISO = () => iso(new Date());
+const nice = s => { const d = parse(s); return `${DOW[d.getDay()]} ${MON[d.getMonth()]} ${d.getDate()}`; };
+const hrs = m => `${+(m / 60).toFixed(2)}h`;
+const fmtMin = m => m >= 60 ? (m % 60 ? `${Math.floor(m/60)}h ${m%60}m` : `${m/60}h`) : `${m} min`;
+
+// ---------- utils ----------
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const $ = (sel, root = document) => root.querySelector(sel);
+function toast(msg) { const r = $("#toastRoot"); r.innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; clearTimeout(toast.t); toast.t = setTimeout(() => r.innerHTML = "", 2600); }
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+// ---------- markdown (small, safe subset) ----------
+function inline(t) {
+  let s = esc(t);
+  const codes = [];
+  s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length-1}\u0000`; });
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`);
+  return s;
+}
+function md(src) {
+  const lines = String(src || "").replace(/\r/g, "").split("\n");
+  let out = "", i = 0;
+  const para = [];
+  const flush = () => { if (para.length) { out += `<p>${inline(para.join(" "))}</p>`; para.length = 0; } };
+  while (i < lines.length) {
+    const L = lines[i];
+    if (/^```/.test(L)) { flush(); const lang = L.replace(/^```/, "").trim(); const buf = []; i++; while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]); i++; out += `<div class="codewin"><div class="cbar"><span>${esc(lang || "code")}</span><button type="button" data-copy>Copy</button></div><pre><code>${esc(buf.join("\n"))}</code></pre></div>`; continue; }
+    let m;
+    if ((m = L.match(/^:::hint\s*(.*)$/))) { flush(); const buf = []; i++; while (i < lines.length && !/^:::\s*$/.test(lines[i])) buf.push(lines[i++]); i++; out += `<details><summary>${inline(m[1] || "Hint")}</summary>${md(buf.join("\n"))}</details>`; continue; }
+    if ((m = L.match(/^(#{1,4})\s+(.*)$/))) { flush(); const lv = Math.min(4, m[1].length + 1); out += `<h${lv}>${inline(m[2])}</h${lv}>`; i++; continue; }
+    if (/^\s*[-*]\s+/.test(L) || /^\s*\d+\.\s+/.test(L)) {
+      flush(); const ordered = /^\s*\d+\./.test(L); const items = [];
+      while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]) || (/^\s{2,}\S/.test(lines[i]) && items.length))) {
+        const l = lines[i];
+        if (/^\s*([-*]|\d+\.)\s+/.test(l)) items.push(l.replace(/^\s*([-*]|\d+\.)\s+/, "")); else items[items.length-1] += " " + l.trim();
+        i++;
+      }
+      out += `<${ordered ? "ol" : "ul"}>${items.map(x => `<li>${inline(x)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`; continue;
+    }
+    if (/^>\s?/.test(L)) { flush(); const buf = []; while (i < lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/, "")); out += `<blockquote>${md(buf.join("\n"))}</blockquote>`; continue; }
+    if (!L.trim()) { flush(); i++; continue; }
+    para.push(L.trim()); i++;
+  }
+  flush();
+  return out;
+}
+
+// ---------- derived data ----------
+const trackList = () => Object.entries(S.tracks).map(([id, t]) => ({ id, ...t })).sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+const tColor = t => `var(--t${((t?.hue ?? 0) % 6 + 6) % 6})`;
+const dayList = () => Object.entries(S.days).map(([id, d]) => ({ id, ...d })).filter(d => S.tracks[d.trackId]);
+const doneMap = id => (S.progress[id] && S.progress[id].done) || {};
+const dayMinutes = d => (d.tasks || []).reduce((a, t) => a + (Number(t.min) || 0), 0);
+const dayDoneCount = d => (d.tasks || []).filter(t => doneMap(d.id)[t.id]).length;
+const dayComplete = d => (d.tasks || []).length > 0 && dayDoneCount(d) === d.tasks.length;
+function nextDeadline(t, from) {
+  const ds = [...(t.milestones || []).map(m => m.date), t.deadline].filter(x => x && x >= from).sort();
+  return ds[0] || null;
+}
+function prioritize(items, from) {
+  return items.sort((a, b) => {
+    const ta = S.tracks[a.trackId], tb = S.tracks[b.trackId];
+    const da = nextDeadline(ta, from) || "9999", dbb = nextDeadline(tb, from) || "9999";
+    if (da !== dbb) return da < dbb ? -1 : 1;           // nearest deadline first
+    return (ta.rank ?? 99) - (tb.rank ?? 99);            // your ranking breaks ties
+  });
+}
+const daysOn = date => prioritize(dayList().filter(d => d.date === date), date);
+const catchup = () => { const t = todayISO(); return dayList().filter(d => d.date < t && !dayComplete(d)).sort((a, b) => a.date < b.date ? -1 : 1); };
+function stats() {
+  const dates = new Set(); let mins = 0, tasks = 0; const perTrack = {};
+  for (const d of dayList()) {
+    const dm = doneMap(d.id);
+    for (const t of d.tasks || []) if (dm[t.id]) {
+      dates.add(dm[t.id]); mins += Number(t.min) || 0; tasks++;
+      perTrack[d.trackId] = (perTrack[d.trackId] || 0) + 1;
+    }
+  }
+  let streak = 0, cur = todayISO();
+  if (!dates.has(cur)) cur = addDays(cur, -1);
+  while (dates.has(cur)) { streak++; cur = addDays(cur, -1); }
+  return { streak, mins, tasks, perTrack, studiedToday: dates.has(todayISO()) };
+}
+const availMin = date => Number(S.settings.hours?.[parse(date).getDay()] ?? 0);
+function trackProgress(tid) {
+  const t = todayISO(); let all = 0, done = 0, due = 0, dueDone = 0;
+  for (const d of dayList().filter(d => d.trackId === tid)) for (const k of d.tasks || []) {
+    const ok = !!doneMap(d.id)[k.id]; all++; if (ok) done++;
+    if (d.date <= t) { due++; if (ok) dueDone++; }
+  }
+  return { all, done, due, dueDone };
+}
+
+// ---------- writes ----------
+const chains = {};
+function write(path, fn) {   // one write at a time per document
+  chains[path] = (chains[path] || Promise.resolve()).then(fn).catch(e => {
+    console.error(e);
+    toast(e && e.code === "quota_exceeded" ? "Storage is full; remove some old data." : "Couldn't save that change. Check your connection and try again.");
+  });
+  return chains[path];
+}
+function toggleTask(dayId, taskId, on) {
+  const d = S.days[dayId]; if (!d || !S.db) return;
+  const done = { ...doneMap(dayId) };
+  if (on) done[taskId] = todayISO(); else delete done[taskId];
+  S.progress[dayId] = { ...(S.progress[dayId] || {}), dayId, trackId: d.trackId, done };
+  render();
+  const body = { dayId, trackId: d.trackId, done, updatedAt: new Date().toISOString() };
+  write("progress/" + dayId, () => S.db.doc("progress/" + dayId).set(body));
+}
+
+// ---------- rendering ----------
+function render() {
+  { const td = parse(todayISO()); $("#hdrDate").textContent = `${td.toLocaleDateString("en-CA", { weekday: "long" })}, ${td.toLocaleDateString("en-CA", { month: "long" })} ${td.getDate()}`; }
+  const st = stats();
+  $("#hdrStats").innerHTML = `
+    <div title="Days in a row with at least one task checked"><b class="num">${st.streak}</b><span>day streak</span></div>
+    <div title="Planned time of the tasks you've checked off"><b class="num">${fmtMin(st.mins)}</b><span>logged</span></div>
+    <div><b class="num">${st.tasks}</b><span>task${st.tasks === 1 ? "" : "s"} done</span></div>`;
+  const cu = catchup().length;
+  const b = $("#cuBadge"); b.textContent = cu; b.classList.toggle("zero", cu === 0);
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === S.view)));
+  const main = $("#main");
+  const keepFocus = document.activeElement && document.activeElement.id;
+  if (!S.db && S.dbFailed) { main.innerHTML = `<div class="banner">Your plan is stored with this page on claude.ai. Open it from claude.ai while signed in to load it.</div>`; return; }
+  if (!S.loaded.tracks || !S.loaded.days) { main.innerHTML = `<div class="loading"><span class="label">One moment</span><h2>Opening your plan…</h2></div>`; return; }
+  main.innerHTML = `<div class="${S._shown === S.view ? "" : "view-in"}">${({ today: viewToday, week: viewWeek, goals: viewGoals, catchup: viewCatchup }[S.view] || viewToday)()}</div>`;
+  S._shown = S.view;
+  if (keepFocus && document.getElementById(keepFocus)) document.getElementById(keepFocus).focus();
+  if (S.open) renderDrawer();
+}
+
+function taskRows(d, opts = {}) {
+  const dm = doneMap(d.id);
+  return `<ul class="tasks">${(d.tasks || []).map(t => {
+    const on = !!dm[t.id]; const cid = `cb-${d.id}-${t.id}`;
+    const lc = t.url ? `<a class="lc" href="${esc(t.url)}" target="_blank" rel="noopener">${/leetcode/.test(t.url) ? "LeetCode" : "Open"} ↗</a>` : "";
+    return `<li class="task ${on ? "done" : ""}"><input type="checkbox" id="${cid}" data-day="${esc(d.id)}" data-task="${esc(t.id)}" ${on ? "checked" : ""} ${S.db ? "" : "disabled"}>
+      <label class="tx" for="${cid}">${inline(t.text)}${lc}</label><span class="mins num">${fmtMin(Number(t.min)||0)}</span></li>`;
+  }).join("")}</ul>`;
+}
+function trackTag(t) { return `<span class="tname" style="--tc:${tColor(t)}"><span class="tdot"></span>${esc(t.short || t.name)}</span>`; }
+function dayOfTotal(d) { const n = dayList().filter(x => x.trackId === d.trackId).length; return `Day ${d.dayNum} of ${n}`; }
+
+const WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"];
+const kindPill = d => `<span class="pill ${d.kind === "assessment" ? "bad" : d.kind === "mock" ? "warn" : "info"}">${KIND[d.kind] || "Lesson"}</span>`;
+const relDays = dd => dd === 0 ? "Today" : dd === 1 ? "Tomorrow" : `In ${dd} days`;
+function segs(d) { const dm = doneMap(d.id); return `<div class="segs" aria-hidden="true">${(d.tasks || []).map(t => `<i class="${dm[t.id] ? "on" : ""}"></i>`).join("")}</div>`; }
+
+function ringSVG(doneMin, planned, avail) {
+  const total = Math.max(planned, avail, 1), C = 2 * Math.PI * 46;
+  const a = doneMin / total * C, b = Math.max(0, planned - doneMin) / total * C;
+  const over = planned > avail;
+  return `<svg viewBox="0 0 112 112" aria-hidden="true">
+    <circle cx="56" cy="56" r="46" fill="none" stroke="var(--cream-strong)" stroke-width="9"/>
+    ${b > 0 ? `<circle cx="56" cy="56" r="46" fill="none" stroke="${over ? "var(--bad)" : "var(--ink)"}" stroke-width="9" stroke-dasharray="${b} ${C}" stroke-dashoffset="${-a}" stroke-linecap="butt"/>` : ""}
+    ${a > 0 ? `<circle cx="56" cy="56" r="46" fill="none" stroke="var(--ok)" stroke-width="9" stroke-dasharray="${a} ${C}"/>` : ""}
+  </svg>`;
+}
+
+function viewToday() {
+  const today = todayISO(); const items = daysOn(today);
+  const cu = catchup();
+  const planned = items.reduce((a, d) => a + dayMinutes(d), 0);
+  const doneMin = items.reduce((a, d) => a + (d.tasks||[]).filter(t => doneMap(d.id)[t.id]).reduce((x, t) => x + (Number(t.min)||0), 0), 0);
+  const avail = availMin(today);
+  const cuMin = cu.reduce((a, d) => a + (d.tasks||[]).filter(t => !doneMap(d.id)[t.id]).reduce((x, t) => x + (Number(t.min)||0), 0), 0);
+  const tl = trackList();
+  const ms = tl.flatMap(t => (t.milestones || []).filter(m => m.date >= today).map(m => ({ ...m, t }))).sort((a, b) => a.date < b.date ? -1 : 1).slice(0, 6);
+  const over = planned - avail;
+  const leftMin = Math.max(0, planned - doneMin);
+
+  // hero copy
+  const n = items.length;
+  const allDone = n && items.every(dayComplete);
+  const headline = !n ? `A free day.` : allDone ? `All done for <em>today</em>.` :
+    `${WORDS[n] || n} session${n > 1 ? "s" : ""}, <em>${fmtMin(leftMin)}</em> to go.`;
+  const order = items.map(d => { const t = S.tracks[d.trackId]; return `${esc(t.short || t.name)} Day ${d.dayNum}`; });
+  const lede = !n ? (cu.length ? `Nothing new is scheduled. A good day to clear something from Catch-up.` : `Nothing scheduled. Rest, or add a goal on the Goals screen.`)
+    : `${order.length > 1 ? order.slice(0, -1).join(", ") + " then " + order[order.length - 1] : order[0]}. ${over > 0 ? `That's ${fmtMin(over)} more than the ${fmtMin(avail)} you set aside.` : `${fmtMin(planned)} planned of ${fmtMin(avail)} available.`}`;
+
+  const nx = ms[0];
+  let countdown;
+  if (nx) {
+    const dd = diffDays(today, nx.date);
+    countdown = `<aside class="countdown" aria-label="Next deadline">
+      <span class="label">Next deadline</span>
+      <div class="big"><b class="num">${dd}</b><span>${dd === 1 ? "day left" : dd === 0 ? "days. It's today" : "days left"}</span></div>
+      <div><h3>${esc(nx.label)}</h3><div class="sub" style="margin-top:8px">${trackTagOf(nx.t)}<span>${esc(nice(nx.date))}</span></div></div>
+    </aside>`;
+  } else {
+    countdown = `<aside class="countdown"><span class="label">Next deadline</span><div class="big"><span>Nothing due.</span></div><h3>No milestones ahead.</h3></aside>`;
+  }
+
+  const cards = n ? items.map(d => {
+    const t = S.tracks[d.trackId]; const dn = dayDoneCount(d), k = (d.tasks||[]).length;
+    return `<article class="daycard" style="--tc:${tColor(t)}">
+      <div class="meta">${trackTag(t)}<span class="dnum">${dayOfTotal(d)}</span>${kindPill(d)}<span class="mono num" style="font-size:12px">${fmtMin(dayMinutes(d))}</span></div>
+      <h3>${esc(d.title)}</h3>
+      ${d.focus ? `<p class="focus">${esc(d.focus)}</p>` : ""}
+      ${segs(d)}
+      ${taskRows(d)}
+      <div class="foot"><button class="btn primary" data-open="${esc(d.id)}" data-tab="lesson">Open lesson</button><button class="btn" data-open="${esc(d.id)}" data-tab="ask" ${S.sample ? "" : "hidden"}>Ask about this day</button><span class="count num">${dn}/${k}<small>done</small></span></div>
+    </article>`;
+  }).join("") : `<div class="empty"><h3>Nothing on the desk</h3><p>${cu.length ? "A good day to clear something from Catch-up." : "Rest, or add a goal on the Goals screen."}</p></div>`;
+
+  return `<section class="hero-band">
+      <div class="hero-text"><span class="label">${esc(nice(today))} · ${fmtMin(avail)} set aside</span><h2>${headline}</h2><p class="lede">${lede}</p></div>
+      ${countdown}
+    </section>
+    <div class="today-grid">
+    <section class="stack" aria-label="Today's plan">${cards}</section>
+    <aside class="rail">
+      <div class="rcard"><span class="label">Today's time</span>
+        <div class="ringrow"><div class="ring">${ringSVG(doneMin, planned, avail)}<div class="c"><b class="num">${fmtMin(planned)}</b><span>of ${fmtMin(avail)}</span></div></div>
+          <div class="legend"><div><i style="background:var(--ok)"></i>${fmtMin(doneMin)} done</div><div><i style="background:${over > 0 ? "var(--bad)" : "var(--ink)"}"></i>${fmtMin(leftMin)} left</div><div><i style="background:var(--cream-strong)"></i>${over > 0 ? `${fmtMin(over)} over` : `${fmtMin(Math.max(0, avail - planned))} spare`}</div></div></div>
+      </div>
+      <div class="rcard"><div class="spread"><span class="label">Up next</span><button class="btn ghost small" data-view="goals">All deadlines</button></div>
+        ${ms.length ? `<ol class="timeline">${ms.map(m => { const dd = diffDays(today, m.date); const d = parse(m.date); return `<li class="${dd <= 3 ? "soon" : ""}"><div class="when"><b class="num">${d.getDate()}</b><span>${MON[d.getMonth()]}</span></div><div><div class="what">${esc(m.label)}</div><div class="rel">${relDays(dd)} · ${trackTag(m.t)}</div></div></li>`; }).join("")}</ol>` : `<div class="muted">No upcoming deadlines.</div>`}
+      </div>
+      <div class="rcard cu-mini"><span class="label">Catch-up</span>
+        ${cu.length ? `<div class="row" style="align-items:baseline;gap:10px"><b class="num">${cu.length}</b><span class="muted">past day${cu.length > 1 ? "s" : ""} unfinished · ${fmtMin(cuMin)} of tasks</span></div><div><button class="btn small" data-view="catchup">Open catch-up</button></div>` : `<div class="muted">Nothing behind. Dates stay fixed; anything you miss lands here.</div>`}
+      </div>
+    </aside>
+  </div>`;
+}
+function trackTagOf(t) { return `<span class="tname" style="--tc:${tColor(t)}"><span class="tdot"></span>${esc(t.short || t.name)}</span>`; }
+
+function viewWeek() {
+  const today = todayISO(); const t0 = parse(today);
+  const monday = addDays(today, -((t0.getDay() + 6) % 7) + S.weekOffset * 7);
+  const dates = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+  const tl = trackList();
+  let wkPlanned = 0, wkAvail = 0;
+  const cols = dates.map(date => {
+    const items = daysOn(date); const planned = items.reduce((a, d) => a + dayMinutes(d), 0); const avail = availMin(date);
+    wkPlanned += planned; wkAvail += avail;
+    const flags = tl.flatMap(t => (t.milestones || []).filter(m => m.date === date).map(m => `<div class="flag">${esc(m.label)}</div>`)).join("");
+    const d = parse(date); const pct = avail ? Math.min(100, planned / avail * 100) : (planned ? 100 : 0);
+    return `<div class="wcol ${date === today ? "is-today" : ""} ${date < today ? "past" : ""}">
+      <div class="wd"><b class="num">${d.getDate()}</b><span>${date === today ? "<em>Today</em>" : ""}${DOW[d.getDay()]}</span></div>
+      <div class="load" title="planned / available"><div class="bar"><span class="${planned > avail ? "over" : ""}" style="width:${pct}%"></span></div><span class="cap num">${hrs(planned)} / ${hrs(avail)}</span></div>
+      ${flags}
+      ${items.map(x => { const t = S.tracks[x.trackId]; const n = (x.tasks||[]).length, dn = dayDoneCount(x);
+        return `<button class="witem" style="--tc:${tColor(t)}" data-open="${esc(x.id)}" data-tab="lesson">${trackTag(t)}<span class="t">${esc(x.title)}</span><span class="s"><span>Day ${x.dayNum}</span>${dn === n && n ? `<span class="fin">Done</span>` : `<span class="num">${dn}/${n}</span>`}</span></button>`; }).join("") || `<span class="free">Free</span>`}
+    </div>`;
+  }).join("");
+  const ld = parse(dates[6]), fd = parse(dates[0]);
+  return `<div class="sec-head"><div><span class="label">${S.weekOffset === 0 ? "This week" : S.weekOffset > 0 ? `${S.weekOffset} week${S.weekOffset > 1 ? "s" : ""} ahead` : `${-S.weekOffset} week${S.weekOffset < -1 ? "s" : ""} back`} · ${hrs(wkPlanned)} planned of ${hrs(wkAvail)}</span>
+      <h2>${MON[fd.getMonth()]} ${fd.getDate()} – ${fd.getMonth() === ld.getMonth() ? "" : MON[ld.getMonth()] + " "}${ld.getDate()}</h2></div>
+    <div class="row"><button class="btn circle" data-week="-1" aria-label="Previous week">←</button><button class="btn small" data-week="0">This week</button><button class="btn circle" data-week="1" aria-label="Next week">→</button></div></div>
+    <div class="week">${cols}</div>`;
+}
+
+function viewGoals() {
+  const today = todayISO(); const tl = trackList(); const st = stats();
+  const cuAll = catchup();
+  const goals = tl.map((t, idx) => {
+    const p = trackProgress(t.id); const nd = nextDeadline(t, today);
+    const behind = cuAll.filter(d => d.trackId === t.id).length;
+    const status = behind ? `<span class="pill warn">${behind} day${behind > 1 ? "s" : ""} in catch-up</span>` : `<span class="pill ok">On track</span>`;
+    const tdays = dayList().filter(d => d.trackId === t.id).map(d => d.date).sort();
+    const last = tdays[tdays.length - 1];
+    const mss = (t.milestones || []).slice().sort((a,b)=>a.date<b.date?-1:1);
+    return `<article class="goal-row" style="--tc:${tColor(t)}">
+      <div class="rankcol"><span class="rankno num" aria-label="Rank ${idx + 1}">${idx + 1}</span>
+        <div class="rankbtns"><button class="btn circle" data-rank="${esc(t.id)}" data-dir="-1" ${idx === 0 ? "disabled" : ""} aria-label="Move ${esc(t.short || t.name)} up">↑</button><button class="btn circle" data-rank="${esc(t.id)}" data-dir="1" ${idx === tl.length - 1 ? "disabled" : ""} aria-label="Move ${esc(t.short || t.name)} down">↓</button></div></div>
+      <div class="goal-body">
+        <div class="row">${trackTag(t)}${status}${tdays.length ? "" : `<span class="pill plain">No days scheduled</span>`}</div>
+        <h3>${esc(t.name)}</h3>
+        ${t.goal ? `<p class="goaltext">${inline(t.goal)}</p>` : ""}
+        <div class="facts">
+          <div><span class="label">Next deadline</span><span class="v num">${nd ? `${esc(nice(nd).slice(4))}<small>${relDays(diffDays(today, nd)).toLowerCase()}</small>` : "None"}</span></div>
+          <div><span class="label">Due so far</span><span class="v num">${p.dueDone}/${p.due}<small>tasks</small></span><div class="progressbar"><span style="width:${p.due ? p.dueDone / p.due * 100 : 0}%"></span></div></div>
+          <div><span class="label">Whole plan</span><span class="v num">${p.done}/${p.all}<small>tasks</small></span><div class="progressbar"><span style="width:${p.all ? p.done / p.all * 100 : 0}%"></span></div></div>
+        </div>
+        ${mss.length ? `<div style="display:grid;gap:10px"><span class="label">Milestones</span><ul class="mslist">${mss.map(m => `<li class="${m.date < today ? "past" : ""}"><span class="d">${nice(m.date).slice(4)}</span><span>${esc(m.label)}</span></li>`).join("")}</ul></div>` : ""}
+        ${filesRow(t.id)}
+        <div class="goal-foot"><span class="muted">${last ? `${tdays.length} days, ${esc(nice(tdays[0]).slice(4))} to ${esc(nice(last).slice(4))}` : "No days yet."}</span>
+          <button class="btn small" data-extend="${esc(t.id)}" ${S.sample && S.extendOpen !== t.id ? "" : "hidden"} style="margin-left:auto">Plan next week with AI</button></div>
+        ${S.extendOpen === t.id ? `<div class="preview">${extendBox(t.id)}</div>` : ""}
+      </div>
+    </article>`;
+  }).join("") || `<div class="empty"><h3>No goals yet</h3><p>Add your first goal below.</p></div>`;
+  const hrs = S.settings.hours || {};
+  const order = [1,2,3,4,5,6,0];
+  const maxTasks = Math.max(1, ...tl.map(t => st.perTrack[t.id] || 0));
+  const weekTotal = order.reduce((a, i) => a + Number(hrs[i] ?? 0), 0);
+  return `<div class="goals">
+    <section>
+      <div class="sec-head"><div><span class="label">${tl.length} tracks · ranked</span><h2>Goals &amp; deadlines</h2></div><p>Each day's order: nearest deadline first, then your rank. Use the arrows to change rank.</p></div>
+      <div class="tracklist">${goals}</div>
+    </section>
+    <div class="two">
+      <section class="feature"><span class="label">${fmtMin(weekTotal)} a week</span><h3>Your weekly hours</h3><p class="muted">Hours you can study each day. Today and Week compare your plan against these.</p>
+        <div class="avail">${order.map(i => `<label for="hr-${i}">${DOW[i]}<input id="hr-${i}" type="number" min="0" max="16" step="0.25" value="${S.hoursDraft ? esc(S.hoursDraft[i]) : (Number(hrs[i] ?? 0) / 60)}" data-hr="${i}"></label>`).join("")}</div>
+        <div class="row"><button class="btn primary small" id="saveHours" ${S.db ? "" : "disabled"}>Save hours</button></div>
+      </section>
+      <section class="feature"><span class="label">Since you started</span><h3>Stats</h3>
+        <div class="bigstats"><div><b class="num">${st.streak}</b><span class="label">day streak</span></div>
+          <div><b class="num sm">${fmtMin(st.mins)}</b><span class="label">logged</span></div>
+          <div><b class="num">${st.tasks}</b><span class="label">tasks</span></div></div>
+        <div class="bars">${tl.map(t => `<div class="b" style="--tc:${tColor(t)}"><span class="tname"><span class="tdot"></span>${esc(t.short || t.name)}</span><span class="track"><span style="width:${(st.perTrack[t.id] || 0) / maxTasks * 100}%"></span></span><span class="n">${st.perTrack[t.id] || 0}</span></div>`).join("")}</div>
+      </section>
+    </div>
+    ${addGoalForm()}
+  </div>`;
+}
+
+function filesRow(tid) {
+  const files = (S.sources[tid] && S.sources[tid].files) || [];
+  const size = files.reduce((a, f) => a + String(f.content || "").length, 0);
+  return `<div class="files"><span class="label">Files the AI helper can read</span>
+    ${files.length ? `<div class="row" style="gap:6px">${files.map((f, i) => `<span class="fchip">${esc(f.name)}<button class="btn ghost small" style="min-height:24px;padding:0 6px" data-rmfile="${esc(tid)}" data-idx="${i}" aria-label="Remove ${esc(f.name)}">✕</button></span>`).join("")}</div>
+      <div class="muted" style="font-size:12.5px">${files.length} file${files.length === 1 ? "" : "s"} · ${Math.round(size / 1024)} KB of 200 KB. Ask AI and Expand lesson read these for every day in this track.</div>` : `<div class="muted" style="font-size:13px">None yet. Add code or notes so the AI answers from your real files.</div>`}
+    <div class="row"><label class="btn small" for="files-${esc(tid)}">Add files</label><input type="file" id="files-${esc(tid)}" data-addfiles="${esc(tid)}" multiple hidden accept=".js,.gs,.ts,.py,.cpp,.h,.hpp,.c,.java,.html,.css,.md,.txt,.json,.csv,.sql,.yml,.yaml"></div></div>`;
+}
+async function addFiles(tid, list) {
+  if (!S.db || !list.length) return;
+  const files = [...((S.sources[tid] && S.sources[tid].files) || [])];
+  for (const f of list) {
+    const text = await f.text().catch(() => null);
+    if (text == null || /\u0000/.test(text)) { toast(`${f.name} isn't a text file`); continue; }
+    const i = files.findIndex(x => x.name === f.name); const entry = { name: f.name, content: text };
+    if (i >= 0) files[i] = entry; else files.push(entry);
+  }
+  const size = files.reduce((a, f) => a + f.content.length, 0);
+  if (size > 200000) { toast("That's over 200 KB of files. Add fewer or smaller files."); return; }
+  S.sources[tid] = { files }; render();
+  write("sources/" + tid, () => S.db.doc("sources/" + tid).set({ files, updatedAt: new Date().toISOString() })).then(() => toast("Files saved"));
+}
+function removeFile(tid, idx) {
+  const files = [...((S.sources[tid] && S.sources[tid].files) || [])]; files.splice(idx, 1);
+  S.sources[tid] = { files }; render();
+  write("sources/" + tid, () => S.db.doc("sources/" + tid).set({ files, updatedAt: new Date().toISOString() }));
+}
+
+function addGoalForm() {
+  if (!S.sample) return `<section class="band-dark"><span class="label" style="color:var(--on-dark-soft)">New track</span><h3>Add a goal</h3><p>Drafting plans needs Claude, which isn't available in this view. Ask in your Claude chat and the plan will be added here.</p></section>`;
+  const f = S.goalDraft || {};
+  return `<section class="band-dark" id="addGoal"><div style="display:grid;gap:10px"><span class="label" style="color:var(--on-dark-soft)">New track</span><h3>Add a goal</h3>
+    <p>Describe what you want to learn and by when. Claude drafts a day-by-day plan that fits your weekly hours; you review it before saving.</p></div>
+    <div class="two">
+      <div class="field"><label for="g-name">Name</label><input id="g-name" placeholder="e.g. AWS Cloud Practitioner" value="${esc(f.name || "")}"></div>
+      <div class="field"><label for="g-deadline">Deadline (optional)</label><input id="g-deadline" type="date" value="${esc(f.deadline || "")}"></div>
+    </div>
+    <div class="field"><label for="g-goal">What do you want to be able to do?</label><textarea id="g-goal" placeholder="e.g. Pass the exam; deploy a small app on EC2 + S3">${esc(f.goal || "")}</textarea></div>
+    <div class="two">
+      <div class="field"><label for="g-level">Where are you now?</label><input id="g-level" placeholder="e.g. Never used AWS; done Day 1–3 of an old plan" value="${esc(f.level || "")}"></div>
+      <div class="field"><label for="g-mins">Minutes per day for this goal</label><input id="g-mins" type="number" min="15" step="15" value="${esc(f.mins || 45)}"></div>
+    </div>
+    <div class="field"><label for="g-paste">Existing plan to build from (optional, paste it)</label><textarea id="g-paste" placeholder="Paste an earlier day-by-day plan here">${esc(f.paste || "")}</textarea></div>
+    <div class="row"><button class="btn primary" id="draftGoal" ${S.drafting ? "disabled" : ""}>Draft plan</button><span class="muted" id="draftStatus" style="font-size:13px">${esc(S.draftStatus || "")}</span></div>
+    ${S.pendingPlan && S.pendingPlan.kind === "new" ? previewHTML(S.pendingPlan.plan, "Save goal and plan") : ""}
+  </section>`;
+}
+
+function viewCatchup() {
+  const cu = catchup(); const today = todayISO();
+  if (!cu.length) return `<div class="empty"><h3>All caught up</h3><p>When a past day has unchecked tasks, it shows up here. Dates in your plan never move.</p></div>`;
+  const left = cu.reduce((a, d) => a + (d.tasks||[]).filter(x => !doneMap(d.id)[x.id]).length, 0);
+  const mins = cu.reduce((a, d) => a + (d.tasks||[]).filter(x => !doneMap(d.id)[x.id]).reduce((s, x) => s + (Number(x.min)||0), 0), 0);
+  return `<section class="callout"><div><span class="lab">Catch-up</span><h2>${cu.length === 1 ? "One day" : `${WORDS[cu.length] || cu.length} days`} still open.</h2><p>Oldest first. Check tasks off here, or open the day for its lesson.</p></div>
+      <div class="figs"><div><b class="num">${left}</b><span>tasks</span></div><div><b class="num">${fmtMin(mins)}</b><span>of work</span></div></div></section>
+    <div class="cu">${cu.map(d => { const t = S.tracks[d.trackId]; const rest = (d.tasks||[]).filter(x => !doneMap(d.id)[x.id]); const ago = diffDays(d.date, today);
+      return `<article class="cucard" style="--tc:${tColor(t)}"><div class="spread"><div class="row">${trackTag(t)}<span class="muted num" style="font-size:13px">${nice(d.date)} · Day ${d.dayNum}</span><span class="late">${ago === 1 ? "yesterday" : `${ago} days ago`}</span></div>
+        <div class="row"><span class="pill warn">${rest.length} left · ${fmtMin(rest.reduce((a, x) => a + (Number(x.min)||0), 0))}</span><button class="btn small" data-open="${esc(d.id)}" data-tab="lesson">Open day</button></div></div>
+        <h3>${esc(d.title)}</h3>${segs(d)}${taskRows(d)}</article>`; }).join("")}</div>`;
+}
+
+
+// ---------- drawer ----------
+function openDay(id, tab) { S.open = id; S.openTab = tab || "lesson"; S.chat = null; renderDrawer(); if (S.openTab === "ask") loadChat(); }
+function closeDay() { if (S.ctl) S.ctl.abort(); S.open = null; $("#drawerRoot").innerHTML = ""; }
+function renderDrawer() {
+  const d = S.days[S.open] && { id: S.open, ...S.days[S.open] }; if (!d) return closeDay();
+  const t = S.tracks[d.trackId];
+  const n = (d.tasks || []).length, dn = dayDoneCount(d);
+  const tabs = [["lesson", "Lesson"], ["tasks", `Tasks ${dn}/${n}`], ["links", "Links"], ...(S.sample ? [["ask", "Ask AI"]] : [])];
+  const scroller = $(".dbody"); const keep = scroller && S._lastTab === S.openTab ? scroller.scrollTop : 0;
+  const focusId = document.activeElement && document.activeElement.id;
+  let body = "";
+  if (S.openTab === "lesson") {
+    const lesson = d.lessonFull || d.lesson || "";
+    body = `<div class="prose">${md(lesson)}</div>
+      ${S.sample ? `<div class="lesson-actions"><button class="btn" id="expandLesson" ${S.expanding ? "disabled" : ""}>${d.lessonFull ? "Rewrite the full lesson" : "Expand lesson"}</button>${d.lessonFull ? `<button class="btn ghost small" id="showShort">Show the short version</button>` : ""}<span class="muted" id="expandStatus" style="font-size:13px">${S.expanding && S.expanding.id === d.id ? esc(S.expandStatusText || "") : ""}</span></div>` : ""}`;
+    if (S.showShort && d.lessonFull) body = `<div class="prose">${md(d.lesson)}</div><div class="lesson-actions"><button class="btn ghost small" id="showFull">Show the full lesson</button></div>`;
+  } else if (S.openTab === "tasks") {
+    body = `<div style="display:grid;gap:14px;max-width:68ch">${segs(d)}${taskRows(d)}</div><p class="muted" style="font-size:13px;margin-top:16px">Total ${fmtMin(dayMinutes(d))}. Checked tasks count toward your streak on the day you check them.</p>`;
+  } else if (S.openTab === "links") {
+    const lcs = (d.tasks || []).filter(x => x.url);
+    body = `<div class="stack">${(d.resources || []).length ? `<div><div class="label" style="margin-bottom:12px">Reading</div><ul class="mslist">${d.resources.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a></li>`).join("")}</ul></div>` : ""}
+      ${lcs.length ? `<div><div class="label" style="margin-bottom:12px">Practice</div><ul class="mslist">${lcs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${inline(x.text)} ↗</a></li>`).join("")}</ul></div>` : ""}
+      ${!(d.resources || []).length && !lcs.length ? `<div class="muted">No links for this day.</div>` : ""}</div>`;
+  } else {
+    body = chatHTML(d);
+  }
+  $("#drawerRoot").innerHTML = `<div class="scrim" data-close></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" style="--tc:${tColor(t)}">
+    <div class="dhead">
+      <div class="spread"><div class="meta">${trackTag(t)}<span class="num">${esc(nice(d.date))}</span><span class="serif" style="font-style:italic;font-size:15px">${dayOfTotal(d)}</span><span class="mono num" style="font-size:12px">${fmtMin(dayMinutes(d))}</span>${kindPill(d)}</div>
+        <button class="btn circle" data-close aria-label="Close">✕</button></div>
+      <h2 id="dTitle">${esc(d.title)}</h2>
+      <div class="dtabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" data-dtab="${k}" aria-selected="${S.openTab === k}">${esc(l)}</button>`).join("")}</div>
+    </div>
+    <div class="dbody">${body}</div>
+  </aside>`;
+  const sc = $(".dbody"); if (sc) sc.scrollTop = S._lastTab === S.openTab ? keep : 0;
+  S._lastTab = S.openTab;
+  if (focusId && document.getElementById(focusId)) document.getElementById(focusId).focus();
+  if (S.openTab === "ask") { const ta = $("#chatInput"); if (ta && S.chatDraft) ta.value = S.chatDraft; }
+}
+
+// ---------- AI: context ----------
+function learnerBlock(t) {
+  return `About the learner (Dilibe): ${t.level || ""}\nHow to teach him: ${t.learner || "Step by step, small pieces he writes himself, hints before answers."}`;
+}
+function sourcesBlock(tid) {
+  const files = (S.sources[tid] && S.sources[tid].files) || [];
+  if (!files.length) return "";
+  let out = "\n\nPROJECT SOURCE FILES (the real code for this track; base every answer about the project on these, cite file names and quote the relevant lines, never guess or say you can't see the code):\n", used = 0;
+  for (const f of files) {
+    const body = String(f.content || ""); if (used + body.length > 150000) { out += `\n(${f.name} omitted: too long)\n`; continue; }
+    used += body.length; out += `\n=== ${f.name} ===\n${body}\n`;
+  }
+  return out;
+}
+function dayContext(d) {
+  const t = S.tracks[d.trackId]; const dm = doneMap(d.id);
+  const lesson = (d.lessonFull || d.lesson || "").slice(0, 9000);
+  return `Track: ${t.name}. Goal: ${t.goal || ""}\n${learnerBlock(t)}\nToday is ${nice(todayISO())}. This is ${dayOfTotal(d)} (${nice(d.date)}): "${d.title}".\nTasks:\n${(d.tasks || []).map(x => `- [${dm[x.id] ? "x" : " "}] ${x.text} (${x.min} min)${x.url ? " " + x.url : ""}`).join("\n")}\n\nLesson for this day:\n${lesson}${sourcesBlock(d.trackId)}`;
+}
+const CHAT_RULES = `You are the study coach inside Dilibe's planner. Rules:
+- When project source files are included below, answer from that real code and point to file names and lines.
+- Teach in C++ unless he asks otherwise (or the track's code is in another language). Be rigorous and concrete; short paragraphs; code in fenced blocks.
+- For a practice problem, never hand over a full solution unless he explicitly writes "show solution". Give the smallest next step or one hint at a time, then ask him to write that piece.
+- When he pastes code, find the bug by pointing at the line and asking a guiding question first; mention which item of his pre-submit checklist it matches if any (= vs ==, < vs <=, 0<=x<n, indexing an empty vector, if/else-if order, read-before-write, long long / % MOD).
+- For quizzes, ask one question at a time; for multiple choice, vary which letter is correct and don't make the longest option the answer.
+- Format with Markdown: ## headings, - lists, \`code\`, fenced code blocks, **bold**.`;
+
+function chatHTML(d) {
+  const turns = (S.chat && S.chat.id === d.id) ? S.chat.turns : null;
+  const msgs = turns == null ? `<div class="muted">Loading conversation…</div>` :
+    turns.length ? turns.map(m => m.role === "user" ? `<div class="msg user">${esc(m.content)}</div>` : `<div class="msg ai prose">${md(m.content)}</div>`).join("") :
+    `<div class="chat-intro"><b>Ask about this day</b>The helper knows this day's lesson, your checklist and the track's files. It gives hints before answers.</div>`;
+  const streaming = S.streaming && S.streaming.id === d.id ? `<div class="msg ai prose" id="streamMsg">${S.streaming.text ? md(S.streaming.text) : `<span class="muted">Thinking…</span>`}</div>` : "";
+  return `<div class="chat" id="chatList">${msgs}${streaming}</div>
+    <div class="composer">
+      <div class="row">
+        <button class="btn small" data-quick="Quiz me on today's lesson: one question at a time, starting easy.">Quiz me</button>
+        <button class="btn small" data-quick="I'm stuck on this task: [which task]. Give me only the next small step.">Hint for a task</button>
+        <button class="btn small" data-quick="Review my code. Don't fix it for me; point me at the problem.\n\n\`\`\`cpp\n// paste here\n\`\`\`">Review my code</button>
+        ${turns && turns.length ? `<button class="btn ghost small" id="clearChat" style="margin-left:auto">Clear chat</button>` : ""}
+      </div>
+      <label for="chatInput" class="label">Your question</label>
+      <textarea id="chatInput" placeholder="e.g. Why does the comparator need const auto&?" ${S.streaming ? "disabled" : ""}></textarea>
+      <div class="row"><button class="btn primary" id="sendChat" ${S.streaming ? "disabled" : ""}>Send</button>${S.streaming ? `<button class="btn" id="stopChat">Stop</button>` : ""}<span class="muted" id="chatStatus" style="font-size:13px"></span></div>
+    </div>`;
+}
+async function loadChat() {
+  const id = S.open; if (!S.db) { S.chat = { id, turns: [] }; return renderDrawer(); }
+  try { const snap = await S.db.doc("chats/" + id).get(); S.chat = { id, turns: (snap.exists && snap.data().turns) || [] }; }
+  catch { S.chat = { id, turns: [] }; }
+  if (S.open === id && S.openTab === "ask") { renderDrawer(); const sc = $(".dbody"); if (sc) sc.scrollTop = sc.scrollHeight; }
+}
+const errCopy = e => ({ not_granted: "Claude isn't allowed for this page. You can allow it from the page's permissions.", rate_limited: "Too many requests right now. Try again in a minute.", session_expired: "Sign in to claude.ai again, then retry.", refused: "Claude declined that request. Try rephrasing.", prompt_too_large: "That was too long. Ask about a smaller piece.", invalid_json: "The plan came back in the wrong shape. Try again." }[e && e.code] || "Something went wrong reaching Claude. Try again.");
+
+async function sendChat(text) {
+  const d = { id: S.open, ...S.days[S.open] }; if (!S.sample || !text.trim() || S.streaming) return;
+  if (!S.chat || S.chat.id !== d.id) S.chat = { id: d.id, turns: [] };
+  const turns = [...S.chat.turns, { role: "user", content: text.trim() }];
+  S.chat.turns = turns; S.chatDraft = ""; S.streaming = { id: d.id, text: "" };
+  const ctl = S.ctl = new AbortController();
+  renderDrawer(); let sc = $(".dbody"); if (sc) sc.scrollTop = sc.scrollHeight;
+  const recent = turns.slice(-16);
+  const input = [{ role: "user", content: CHAT_RULES + "\n\n" + dayContext(d) + "\n\n(Conversation follows.)" }, ...(recent[0].role === "assistant" ? recent.slice(1) : recent)];
+  try {
+    const { text: answer } = await S.sample(input, { cache: false, signal: ctl.signal, onText: ({ text }) => {
+      S.streaming.text = text; const el = $("#streamMsg"); if (el) { el.innerHTML = md(text); const s2 = $(".dbody"); if (s2 && s2.scrollHeight - s2.scrollTop - s2.clientHeight < 160) s2.scrollTop = s2.scrollHeight; } } });
+    S.chat.turns = [...turns, { role: "assistant", content: answer }].slice(-30);
+  } catch (e) {
+    if (e && e.text) S.chat.turns = [...turns, { role: "assistant", content: e.text + "\n\n*(interrupted)*" }];
+    if (e && e.code !== "cancelled") toast(errCopy(e));
+  }
+  S.streaming = null; S.ctl = null;
+  if (S.db) { const body = { dayId: d.id, turns: S.chat.turns, updatedAt: new Date().toISOString() }; write("chats/" + d.id, () => S.db.doc("chats/" + d.id).set(body)); }
+  if (S.open === d.id) { renderDrawer(); sc = $(".dbody"); if (sc) sc.scrollTop = sc.scrollHeight; }
+}
+
+async function expandLesson() {
+  const d = { id: S.open, ...S.days[S.open] }; const t = S.tracks[d.trackId];
+  if (S.expanding) return; S.expanding = { id: d.id }; renderDrawer(); setStatus("expandStatus", "expandStatusText", "Writing… this can take a minute.");
+  const prompt = `Write the full lesson for one day of a self-study plan, in Markdown.\n${learnerBlock(t)}\nTrack: ${t.name}. Day: "${d.title}" (${KIND[d.kind] || "Lesson"}, about ${fmtMin(dayMinutes(d))} total including practice).\nTasks he will do after reading:\n${(d.tasks||[]).map(x => "- " + x.text).join("\n")}\n\nShort outline to expand:\n${d.lesson}${sourcesBlock(d.trackId)}\n\nRequirements:\n- Teach every concept the tasks need, step by step, with small examples (from the project's real code when source files are given) that are NOT solutions to the listed practice problems.\n- Use ## for sections, fenced code blocks, short paragraphs. About 900–1400 words.\n- End with 2–3 self-check questions, each written as:\n:::hint Question text\nanswer\n:::\n- Reply with only the lesson Markdown.`;
+  try {
+    const { text } = await S.sample(prompt, { cache: false, onText: ({ text }) => setStatus("expandStatus", "expandStatusText", `Writing… ${text.length.toLocaleString()} characters`) });
+    S.days[d.id] = { ...S.days[d.id], lessonFull: text };
+    await write("days/" + d.id, () => S.db.doc("days/" + d.id).update({ lessonFull: text }));
+    S.showShort = false; toast("Full lesson saved");
+  } catch (e) { toast(errCopy(e)); }
+  S.expanding = null; S.expandStatusText = ""; if (S.open) renderDrawer();
+}
+
+// ---------- AI: planning ----------
+const PLAN_SHAPE = `Reply with only JSON of this shape:
+{"short": "2-12 char label", "goal": "one sentence", "milestones": [{"date":"YYYY-MM-DD","label":"..."}],
+ "days": [{"date":"YYYY-MM-DD","title":"...","kind":"lesson|mock|assessment|review|project","focus":"few words",
+   "lesson":"Markdown, 120-250 words: what to learn today, with one small code example if relevant",
+   "tasks":[{"text":"concrete task","min":20,"url":"https://... (optional, only real well-known URLs such as official docs or leetcode.com/problems/<slug>/)"}],
+   "resources":[{"label":"...","url":"https://..."}]}]}
+Each day's task minutes must add up to that day's minutes budget. Only include URLs you are confident exist.`;
+function hoursLine() { return [1,2,3,4,5,6,0].map(i => `${DOW[i]} ${Number(S.settings.hours?.[i] ?? 0)} min`).join(", "); }
+function busyLine(from, to) {
+  const out = []; for (let x = from; x <= to; x = addDays(x, 1)) { const m = daysOn(x).reduce((a, d) => a + dayMinutes(d), 0); if (m) out.push(`${x}: ${m} min already planned`); }
+  return out.join("\n") || "nothing else planned";
+}
+async function draftGoal() {
+  const f = S.goalDraft || {};
+  if (!f.name || !f.goal) { setStatus("draftStatus", "draftStatus", "Add a name and what you want to be able to do."); return; }
+  const mins = Number(f.mins) || 45;
+  const start = todayISO(); const endLimit = addDays(start, 13); const end = f.deadline && f.deadline < endLimit ? f.deadline : endLimit;
+  S.drafting = true; S.pendingPlan = null; render(); setStatus("draftStatus", "draftStatus", "Drafting… this can take a minute or two.");
+  const prompt = `Plan a day-by-day self-study schedule.\nLearner: Dilibe, first-year Computer Engineering student at Waterloo; prefers rigorous, step-by-step learning in small pieces.\nGoal name: ${f.name}\nWhat he wants to be able to do: ${f.goal}\nCurrent level: ${f.level || "not stated"}\nDeadline: ${f.deadline || "none (ongoing)"}\nMinutes per day for this goal: about ${mins}, but never more than his free time.\nHis weekly hours across ALL goals: ${hoursLine()}.\nAlready planned for other goals:\n${busyLine(start, end)}\n${f.paste ? `Earlier plan he wants to build from (continue from where he is, don't repeat what he finished):\n${String(f.paste).slice(0, 12000)}\n` : ""}Plan dates ${start} to ${end}. If a deadline exists, put it in milestones and leave a review day before it.\n${PLAN_SHAPE}`;
+  try {
+    const plan = await S.sample.json(prompt, { onText: ({ text }) => setStatus("draftStatus", "draftStatus", `Drafting… ${text.length.toLocaleString()} characters`) });
+    if (!plan || !Array.isArray(plan.days) || !plan.days.length) throw { code: "invalid_json" };
+    S.pendingPlan = { kind: "new", f: { ...f, mins }, plan }; S.draftStatus = "";
+  } catch (e) { S.draftStatus = errCopy(e); }
+  S.drafting = false; render();
+}
+function extendRange(tid) {
+  const mine = dayList().filter(d => d.trackId === tid).sort((a, b) => a.date < b.date ? -1 : 1);
+  const last = mine.length ? mine[mine.length - 1].date : addDays(todayISO(), -1);
+  const start = addDays(last > todayISO() ? last : addDays(todayISO(), -1), 1);
+  return { mine, start, end: addDays(start, 6) };
+}
+function extendBox(tid) {
+  const { start, end } = extendRange(tid);
+  return `<div class="field" style="margin-top:6px"><label for="ext-note">Anything to focus on or avoid next week? (optional)</label><textarea id="ext-note" placeholder="e.g. Graphs felt hard; more timed mocks; I'm busy Thursday">${esc(S.extendNote || "")}</textarea></div>
+    <div class="row"><button class="btn primary small" data-extend-go="${esc(tid)}" ${S.extending ? "disabled" : ""}>Draft ${nice(start)} – ${nice(end)}</button><button class="btn ghost small" id="cancelExtend">Cancel</button><span class="muted" id="extStatus" style="font-size:13px">${esc(S.extendStatus || "")}</span></div>
+    ${S.pendingPlan && S.pendingPlan.kind === "extend" && S.pendingPlan.tid === tid ? previewHTML(S.pendingPlan.plan, "Add these days") : ""}`;
+}
+function setStatus(id, key, text) { S[key] = text; const el = document.getElementById(id); if (el) el.textContent = text; }
+async function extendGo(tid) {
+  const t = S.tracks[tid]; const { mine, start, end } = extendRange(tid);
+  const note = S.extendNote || "";
+  const history = mine.slice(-21).map(d => `${d.date} Day ${d.dayNum}: ${d.title} (${dayDoneCount(d)}/${(d.tasks||[]).length} tasks done)`).join("\n");
+  const behind = catchup().filter(d => d.trackId === tid).map(d => `${d.date}: ${d.title}`).join("\n") || "none";
+  S.extending = true; S.pendingPlan = null; render(); setStatus("extStatus", "extendStatus", "Drafting… this can take a minute or two.");
+  const prompt = `Extend an existing self-study track by one week.\nTrack: ${t.name}. Goal: ${t.goal}\n${learnerBlock(t)}\nRecent days and completion:\n${history}\nStill unfinished (in catch-up):\n${behind}\nHis note for next week: ${note || "none"}\nHis weekly hours across ALL goals: ${hoursLine()}.\nAlready planned for other goals:\n${busyLine(start, end)}\nPlan dates ${start} to ${end}, continuing logically from the history (don't repeat finished topics; revisit weak ones). Use "milestones": [] unless a new deadline is stated. "short" and "goal" can repeat the existing ones.\n${PLAN_SHAPE}`;
+  try {
+    const plan = await S.sample.json(prompt, { onText: ({ text }) => setStatus("extStatus", "extendStatus", `Drafting… ${text.length.toLocaleString()} characters`) });
+    if (!plan || !Array.isArray(plan.days) || !plan.days.length) throw { code: "invalid_json" };
+    S.pendingPlan = { kind: "extend", tid, plan }; S.extendStatus = "";
+  } catch (e) { S.extendStatus = errCopy(e); }
+  S.extending = false; render();
+}
+function previewHTML(plan, cta) {
+  const days = plan.days.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d.date || ""));
+  return `<div class="preview" style="margin-top:6px"><div class="label">Draft: ${days.length} days</div>
+    <ul class="mslist">${days.map(d => `<li><span class="d">${esc(nice(d.date).slice(4))}</span><span><b>${esc(d.title)}</b> <span class="muted num">· ${fmtMin((d.tasks||[]).reduce((a, x) => a + (Number(x.min)||0), 0))}</span></span></li>`).join("")}</ul>
+    ${(plan.milestones || []).length ? `<div class="muted" style="margin-top:8px;font-size:13px">Milestones: ${plan.milestones.map(m => esc(`${m.date} ${m.label}`)).join("; ")}</div>` : ""}
+    <div class="row"><button class="btn primary small" id="savePlan">${esc(cta)}</button><button class="btn ghost small" id="discardPlan">Discard</button></div></div>`;
+}
+function cleanDay(d, trackId, dayNum) {
+  return { trackId, dayNum, date: d.date, title: String(d.title || "Study").slice(0, 160), kind: KIND[d.kind] ? d.kind : "lesson", focus: String(d.focus || "").slice(0, 120),
+    lesson: String(d.lesson || "").slice(0, 20000),
+    tasks: (Array.isArray(d.tasks) ? d.tasks : []).slice(0, 12).map((x, i) => ({ id: "t" + (i + 1), text: String(x.text || "").slice(0, 300), min: Math.max(5, Math.min(240, Math.round(Number(x.min) || 15))), ...(/^https:\/\//.test(x.url || "") ? { url: x.url } : {}) })),
+    resources: (Array.isArray(d.resources) ? d.resources : []).filter(r => /^https:\/\//.test(r.url || "")).slice(0, 8).map(r => ({ label: String(r.label || r.url).slice(0, 120), url: r.url })) };
+}
+async function savePlan() {
+  const P = S.pendingPlan; if (!P || !S.db) return; const btn = $("#savePlan"); if (btn) btn.disabled = true;
+  try {
+    let tid = P.tid;
+    if (P.kind === "new") {
+      tid = (P.f.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "goal") + "-" + Math.random().toString(36).slice(2, 6);
+      const ranks = trackList().map(t => t.rank ?? 0); const hues = new Set(trackList().map(t => t.hue));
+      let hue = 0; while (hues.has(hue) && hue < 6) hue++;
+      const tr = { name: P.f.name, short: String(P.plan.short || P.f.name).slice(0, 14), goal: String(P.plan.goal || P.f.goal), deadline: P.f.deadline || null, hue: hue % 6,
+        rank: (ranks.length ? Math.max(...ranks) : 0) + 1, level: P.f.level || "", learner: "Prefers rigorous step-by-step teaching, small pieces he writes himself, hints before answers.",
+        milestones: (P.plan.milestones || []).filter(m => /^\d{4}-\d{2}-\d{2}$/.test(m.date || "")).map(m => ({ date: m.date, label: String(m.label || "").slice(0, 160) })), createdAt: todayISO() };
+      if (tr.deadline && !tr.milestones.some(m => m.date === tr.deadline)) tr.milestones.push({ date: tr.deadline, label: `${P.f.name}: deadline` });
+      await S.db.doc("tracks/" + tid).set(tr);
+    }
+    let n = dayList().filter(d => d.trackId === tid).reduce((a, d) => Math.max(a, d.dayNum || 0), 0);
+    const days = P.plan.days.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d.date || "")).sort((a, b) => a.date < b.date ? -1 : 1);
+    for (const d of days) { n++; const id = `${tid}-${String(n).padStart(3, "0")}`; await S.db.doc("days/" + id).set(cleanDay(d, tid, n)); }
+    S.pendingPlan = null; if (P.kind === "new") S.goalDraft = null; else { S.extendOpen = null; S.extendNote = ""; }
+    toast(P.kind === "new" ? "Goal and plan saved" : "Days added"); render();
+  } catch (e) { console.error(e); toast("Couldn't save the plan. Try again."); if (btn) btn.disabled = false; }
+}
+
+// ---------- events ----------
+function selectText(node) { try { const r = document.createRange(); r.selectNodeContents(node); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch {} }
+document.addEventListener("click", e => {
+  const el = e.target.closest("button, [data-close]"); if (!el) return;
+  if (el.hasAttribute("data-copy")) { const code = el.closest(".codewin")?.querySelector("code"); if (!code) return;
+    const done = ok => { el.textContent = ok ? "Copied" : "Select and copy"; setTimeout(() => { el.textContent = "Copy"; }, 1600); };
+    try { navigator.clipboard.writeText(code.textContent).then(() => done(true), () => { selectText(code); done(false); }); } catch { selectText(code); done(false); }
+    return; }
+  if (el.dataset.view) { S.view = el.dataset.view; store.set("eo.view", S.view); render(); window.scrollTo(0, 0); return; }
+  if (el.dataset.open) { openDay(el.dataset.open, el.dataset.tab); return; }
+  if (el.hasAttribute("data-close")) { closeDay(); return; }
+  if (el.dataset.dtab) { S.openTab = el.dataset.dtab; S.showShort = false; renderDrawer(); if (S.openTab === "ask" && (!S.chat || S.chat.id !== S.open)) loadChat(); return; }
+  if (el.dataset.week != null) { const v = Number(el.dataset.week); S.weekOffset = v === 0 ? 0 : S.weekOffset + v; render(); return; }
+  if (el.dataset.rmfile) { removeFile(el.dataset.rmfile, Number(el.dataset.idx)); return; }
+  if (el.dataset.rank) { moveRank(el.dataset.rank, Number(el.dataset.dir)); return; }
+  if (el.dataset.extend) { S.extendOpen = el.dataset.extend; S.extendStatus = ""; if (S.pendingPlan && S.pendingPlan.kind === "extend") S.pendingPlan = null; render(); return; }
+  if (el.dataset.extendGo) { extendGo(el.dataset.extendGo); return; }
+  if (el.dataset.quick) { const ta = $("#chatInput"); if (ta) { ta.value = el.dataset.quick; S.chatDraft = ta.value; ta.focus(); } return; }
+  switch (el.id) {
+    case "saveHours": saveHours(); break;
+    case "draftGoal": draftGoal(); break;
+    case "savePlan": savePlan(); break;
+    case "discardPlan": S.pendingPlan = null; render(); break;
+    case "cancelExtend": S.extendOpen = null; S.extendStatus = ""; if (S.pendingPlan && S.pendingPlan.kind === "extend") S.pendingPlan = null; render(); break;
+    case "sendChat": sendChat(($("#chatInput") || {}).value || ""); break;
+    case "stopChat": if (S.ctl) S.ctl.abort(); break;
+    case "clearChat": S.chat = { id: S.open, turns: [] }; if (S.db) write("chats/" + S.open, () => S.db.doc("chats/" + S.open).set({ dayId: S.open, turns: [] })); renderDrawer(); break;
+    case "expandLesson": expandLesson(); break;
+    case "showShort": S.showShort = true; renderDrawer(); break;
+    case "showFull": S.showShort = false; renderDrawer(); break;
+  }
+});
+document.addEventListener("change", e => { const c = e.target; if (c.dataset && c.dataset.addfiles) { addFiles(c.dataset.addfiles, [...c.files]); c.value = ""; return; } if (c.matches('input[type="checkbox"][data-day]')) toggleTask(c.dataset.day, c.dataset.task, c.checked); });
+document.addEventListener("input", e => {
+  const el = e.target, id = el.id || "";
+  if (id === "chatInput") S.chatDraft = el.value;
+  else if (id === "ext-note") S.extendNote = el.value;
+  else if (id.startsWith("g-")) { S.goalDraft = { ...(S.goalDraft || {}), [id.slice(2)]: el.value }; }
+  else if (el.dataset.hr != null) { if (!S.hoursDraft) { S.hoursDraft = {}; for (let i = 0; i < 7; i++) S.hoursDraft[i] = Number(S.settings.hours?.[i] ?? 0) / 60; } S.hoursDraft[el.dataset.hr] = el.value; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && S.open) closeDay();
+  if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && e.target.id === "chatInput") sendChat(e.target.value);
+});
+
+async function moveRank(tid, dir) {
+  const tl = trackList(); const i = tl.findIndex(t => t.id === tid); const j = i + dir; if (j < 0 || j >= tl.length || !S.db) return;
+  const order = tl.map(t => t.id); [order[i], order[j]] = [order[j], order[i]];
+  order.forEach((id, k) => { S.tracks[id] = { ...S.tracks[id], rank: k + 1 }; });
+  render();
+  for (const [k, id] of order.entries()) await write("tracks/" + id, () => S.db.doc("tracks/" + id).update({ rank: k + 1 }));
+}
+function saveHours() {
+  const hours = {}; document.querySelectorAll("[data-hr]").forEach(inp => { hours[inp.dataset.hr] = Math.max(0, Math.round((Number(inp.value) || 0) * 60)); });
+  S.settings = { ...S.settings, hours }; S.hoursDraft = null; render();
+  write("settings/main", () => S.db.doc("settings/main").set({ hours })).then(() => toast("Hours saved"));
+}
+
+// ---------- boot ----------
+const saved = store.get("eo.view", null); if (["today","week","goals","catchup"].includes(location.hash.slice(1))) S.view = location.hash.slice(1); else if (saved) S.view = saved;
+render();
+// re-render at midnight so "today" moves on
+setInterval(() => { if (S._d !== todayISO()) { S._d = todayISO(); if (!S.open) render(); } }, 60000); S._d = todayISO();
+
+(async () => {
+  const C = window.claude;
+  if (!C || !C.use) { S.dbFailed = true; render(); return; }
+  C.use("sample").then(s => { S.sample = s || null; if (S.loaded.days) render(); }).catch(() => {});
+  const db = await C.use("db").catch(() => null);
+  if (!db) { S.dbFailed = true; render(); return; }
+  S.db = db;
+  const onErr = e => { console.error(e); if (e && e.code === "revoked") { S.db = null; S.dbFailed = true; render(); } };
+  const toMap = snap => { const m = {}; snap.docs.forEach(d => { m[d.id] = d.data(); }); return m; };
+  db.collection("tracks").onSnapshot(s => { S.tracks = toMap(s); S.loaded.tracks = true; render(); }, onErr);
+  db.collection("days").onSnapshot(s => { S.days = toMap(s); S.loaded.days = true; render(); }, onErr);
+  db.collection("progress").onSnapshot(s => { S.progress = toMap(s); render(); }, onErr);
+  db.collection("sources").onSnapshot(s => { S.sources = toMap(s); render(); }, onErr);
+  db.doc("settings/main").onSnapshot(s => { if (s.exists && s.data().hours) { S.settings = s.data(); render(); } }, onErr);
+})();
+})();
+</script>
+
+</body></html>
