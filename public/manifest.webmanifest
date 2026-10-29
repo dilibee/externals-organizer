@@ -1,0 +1,10 @@
+{
+  "name": "Externals Organizer",
+  "short_name": "Externals",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f7f5ff",
+  "theme_color": "#6d5dfc",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
