@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DOW, fmtMin, relDays, diffDays, short } from "../lib/dates";
-import { exportStore, mode, signOut, useDB } from "../lib/db";
+import { exportStore, mode, setPassword, signOut, useDB } from "../lib/db";
 import { addFiles, addMilestone, createTrack, moveRank, queueRequest, removeFile, saveHours, updateTrack } from "../lib/actions";
 import { DEFAULT_HOURS, catchup, dayList, nextDeadline, paceSignals, stats, trackList, trackProgress } from "../lib/planner";
 import { adaptPrompt, draftPrompt, interviewPrompt, type GoalDraft, type InterviewInfo } from "../lib/prompts";
@@ -22,6 +22,7 @@ export function Goals() {
     <div className="card row"><span className="label" style={{ marginRight: "auto" }}>Data · {mode === "supabase" ? "synced with Supabase" : "stored in this browser"}</span>
       <button className="btn sm" onClick={() => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([exportStore()], { type: "application/json" })); a.download = `externals-backup-${today}.json`; a.click(); }}>Download backup</button>
       {mode === "supabase" && <button className="btn sm ghost" onClick={() => signOut()}>Sign out</button>}</div>
+    {mode === "supabase" && <PasswordCard />}
   </div>;
 }
 
@@ -150,5 +151,20 @@ function NewGoal({ s, today }: { s: Store; today: string }) {
       beforeSave={plan => createTrack(f.name, { short: String(plan.short || f.name).slice(0, 14), goal: String(plan.goal || f.goal), level: f.level, deadline: f.deadline || null,
         milestones: [...(plan.milestones || []), ...(f.deadline ? [{ date: f.deadline, label: `${f.name}: deadline` }] : [])] })}
       onDone={() => { setStep(false); setF({ name: "", goal: "", level: "", deadline: "", mins: 45, paste: "" }); }} />}
+  </section>;
+}
+
+function PasswordCard() {
+  const ui = useUI(); const [pw, setPw] = useState(""); const [busy, setBusy] = useState(false);
+  const save = async () => {
+    setBusy(true);
+    try { await setPassword(pw); setPw(""); ui.toast("Password set. Use it to sign in on other devices."); }
+    catch (e: any) { ui.toast(e?.message || "Couldn't set the password."); }
+    setBusy(false);
+  };
+  return <section className="card stack"><div><span className="label">Sign-in</span><h3>Password for other devices</h3>
+    <p className="muted small" style={{ margin: "4px 0 0" }}>Set a password here, then choose "Use a password instead" on the sign-in screen of another device. No email needed.</p></div>
+    <div className="row"><input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="New password (8+ characters)" aria-label="New password" autoComplete="new-password" style={{ maxWidth: 320 }} />
+      <button className="btn primary sm" disabled={pw.length < 8 || busy} onClick={save}>Set password</button></div>
   </section>;
 }

@@ -118,6 +118,17 @@ export async function signIn(email: string) {
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
   if (error) throw error;
 }
+export async function signInWithPassword(email: string, password: string) {
+  if (!supabase) return;
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+/** Lets a device that's already signed in (via email link) add a password for signing in elsewhere without email. */
+export async function setPassword(password: string) {
+  if (!supabase) return;
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
 export async function signOut() { await supabase?.auth.signOut(); }
 
 /** Local mode only: replace everything with an exported JSON (the same shape export produces). */
