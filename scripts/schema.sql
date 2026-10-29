@@ -1,4 +1,5 @@
--- Run once in the Supabase SQL editor (Project -> SQL Editor -> New query).
+-- Paste this whole file into the Supabase SQL editor (SQL Editor -> New query) and press Run.
+-- Safe to run more than once.
 -- One table holds every collection (tracks, days, progress, ...) as JSON documents, one row per doc.
 create table if not exists public.docs (
   user_id uuid not null default auth.uid() references auth.users on delete cascade,
@@ -17,4 +18,9 @@ create policy "own docs" on public.docs for all
 
 -- Live sync between phone and laptop.
 alter table public.docs replica identity full;
-alter publication supabase_realtime add table public.docs;
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'docs') then
+    alter publication supabase_realtime add table public.docs;
+  end if;
+end $$;
