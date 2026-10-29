@@ -18,7 +18,7 @@ Rebuild it as a standalone app that runs outside claude.ai, keeping the existing
 - Vite + React + TypeScript in `src/`. Pure logic lives in `src/lib/` (`planner.ts`, `validate.ts`, `prompts.ts`, `markdown.ts`) and is shared with the Node scripts in `scripts/`.
 - Data: Supabase table `docs` (see `scripts/schema.sql`), one row per document, keyed by (user, collection, id). Collections are the artifact's six plus `feedback` (per-day check-ins), `extras` (catch-up items), `requests` (work queued for Claude Code) and `suggestions`.
 - Without Supabase env vars the app runs in local mode (localStorage). In dev it seeds from `.local/seed.json` (`npm run seed:local`).
-- Deploy: GitHub Pages via `.github/workflows/deploy.yml`, with repo variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`.
+- Live: https://dilibee.github.io/externals-organizer/ (Supabase project `pnnpiretbukbnaejxjsk`). Deploy: GitHub Pages via `.github/workflows/deploy.yml`, with repo variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`.
 - Node is at `C:\Program Files\nodejs` and may not be on PATH; prepend it.
 
 ## Study priorities (agreed 2026-10-28)
