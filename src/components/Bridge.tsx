@@ -44,6 +44,7 @@ export function Bridge({ prompt, mode, pasteLabel, cta, trackId, beforeSave, onT
     if (mode === "text") { if (!text.trim()) return; onText?.(text.trim()); setText(""); onDone?.(); return; }
     try {
       const plan = parsePlan(text);
+      if (beforeSave && !(Array.isArray(plan.days) && plan.days.some(d => /^\d{4}-\d{2}-\d{2}$/.test(d?.date || "") && d.date! >= today))) { setErr("Nothing in that plan could be saved. "); return; }
       const tid = beforeSave ? beforeSave(plan) : trackId;
       const ch = planChanges(getStore(), plan, today, tid || plan.trackId);
       if (!ch.writes.length && !ch.deletes.length) { setErr("Nothing in that plan could be saved. " + ch.skipped.join(" ")); return; }

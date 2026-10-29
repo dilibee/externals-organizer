@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { availMin, catchup, daysOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, stats, taskXP } from "./planner";
+import { availMin, catchup, daysOn, extrasOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, plannedOn, stats, taskXP } from "./planner";
 import { COLLECTIONS, type Day, type Store } from "./types";
 
 const T = "2026-10-28"; // a Wednesday
@@ -28,6 +28,18 @@ describe("ordering", () => {
 });
 
 describe("catch-up", () => {
+  it("keeps completed scheduled extras in the day and planned time but out of the focus queue", () => {
+    const s = mk({ days: { d: day("a", T, [30]) }, extras: {
+      done: { text: "done carry", trackId: "a", min: 15, source: "carry", planFor: T, doneAt: T, createdAt: "1" },
+      open: { text: "open carry", min: 20, source: "carry", planFor: T, createdAt: "2" },
+      paused: { text: "paused carry", trackId: "b", min: 40, source: "carry", planFor: T, doneAt: T, createdAt: "3" },
+      later: { text: "later carry", min: 10, source: "carry", planFor: "2026-10-29", createdAt: "4" },
+    } });
+    s.tracks.b.paused = true;
+    expect(extrasOn(s, T).map(x => x.id)).toEqual(["done", "open"]);
+    expect(plannedOn(s, T)).toBe(65);
+    expect(focusQueue(s, T).map(q => q.key)).toEqual(["d:t1", "x:open"]);
+  });
   it("lists only past, unfinished days of active tracks", () => {
     const s = mk({ days: { old: day("a", "2026-10-26", [30]), done: day("a", "2026-10-27", [30]), now: day("a", T, [30]), paused: day("b", "2026-10-25", [30]) },
       progress: { done: { dayId: "done", trackId: "a", done: { t1: "2026-10-27" } } } });
@@ -54,6 +66,15 @@ describe("hours", () => {
 });
 
 describe("streak and XP", () => {
+  it("counts a completed carried task once while still counting standalone extras", () => {
+    const s = mk({ days: { d: day("a", "2026-10-27", [30], { kind: "mock" }) },
+      progress: { d: { dayId: "d", trackId: "a", done: { t1: T } } }, extras: {
+        carry: { text: "carry", trackId: "a", min: 30, source: "carry", fromDayId: "d", fromTaskId: "t1", doneAt: T, createdAt: "1" },
+      } });
+    expect(stats(s, T)).toMatchObject({ mins: 30, tasks: 1, xp: 70, perTrack: { a: 1 }, streak: 1, studiedToday: true });
+    s.extras.standalone = { text: "standalone carry", trackId: "a", min: 15, source: "carry", fromDayId: "d", doneAt: T, createdAt: "2" };
+    expect(stats(s, T)).toMatchObject({ mins: 45, tasks: 2, xp: 85, perTrack: { a: 2 } });
+  });
   it("counts consecutive days ending today or yesterday", () => {
     const s = mk({ days: { d: day("a", "2026-10-20", [10, 10, 10, 10]) },
       progress: { d: { dayId: "d", trackId: "a", done: { t1: "2026-10-25", t2: "2026-10-26", t3: "2026-10-27", t4: "2026-10-23" } } } });

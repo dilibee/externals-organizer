@@ -45,7 +45,10 @@ export const openExtras = (s: Store): WithId<Extra>[] =>
     .filter(x => !x.doneAt && (!x.trackId || (s.tracks[x.trackId] && !s.tracks[x.trackId].paused)))
     .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
 /** Extras slotted into a date (carries), and the date-less ones still waiting. */
-export const extrasOn = (s: Store, date: string) => openExtras(s).filter(x => x.planFor === date);
+export const extrasOn = (s: Store, date: string): WithId<Extra>[] =>
+  Object.entries(s.extras).map(([id, x]) => ({ id, ...x }))
+    .filter(x => x.planFor === date && (!x.trackId || (s.tracks[x.trackId] && !s.tracks[x.trackId].paused)))
+    .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
 export const catchupCount = (s: Store, today: string) => catchup(s, today).length + openExtras(s).filter(x => !x.planFor || x.planFor < today).length;
 
 export function availMin(settings: Settings | undefined, date: string) {
@@ -81,6 +84,7 @@ export function stats(s: Store, today: string) {
     if (all && (d.tasks || []).length) xp += DAY_BONUS;
   }
   for (const x of Object.values(s.extras)) if (x.doneAt) {
+    if (x.source === "carry" && x.fromDayId && x.fromTaskId) continue;
     dates.add(x.doneAt); mins += Number(x.min) || 0; tasks++; xp += taskXP("review", x.min);
     if (x.trackId) perTrack[x.trackId] = (perTrack[x.trackId] || 0) + 1;
   }
@@ -108,7 +112,7 @@ export type QueueItem =
 export function focusQueue(s: Store, today: string): QueueItem[] {
   const q: QueueItem[] = [];
   for (const d of daysOn(s, today)) for (const t of leftTasks(s, d)) q.push({ kind: "task", key: `${d.id}:${t.id}`, dayId: d.id, trackId: d.trackId, task: t, day: d });
-  for (const x of prioritize(s, extrasOn(s, today), today)) q.push({ kind: "extra", key: `x:${x.id}`, extraId: x.id, trackId: x.trackId, extra: x });
+  for (const x of prioritize(s, extrasOn(s, today).filter(x => !x.doneAt), today)) q.push({ kind: "extra", key: `x:${x.id}`, extraId: x.id, trackId: x.trackId, extra: x });
   return q;
 }
 
