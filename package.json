@@ -14,7 +14,8 @@
     "apply": "tsx scripts/apply.ts",
     "worker": "tsx scripts/worker.ts",
     "worker:install": "tsx scripts/worker-startup.ts",
-    "worker:uninstall": "tsx scripts/worker-startup.ts --uninstall"
+    "worker:uninstall": "tsx scripts/worker-startup.ts --uninstall",
+    "backup": "tsx scripts/backup.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
