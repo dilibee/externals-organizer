@@ -5,6 +5,7 @@ import { saveChat, saveLessonFull } from "../lib/actions";
 import { dayDoneCount, dayList, dayMinutes } from "../lib/planner";
 import { chatPrompt, expandPrompt } from "../lib/prompts";
 import { useToday, useUI, type SheetTab } from "../ui";
+import { latestJob } from "../lib/jobs";
 import { Bridge } from "./Bridge";
 import { Inline, KindPill, Prose, Segs, TaskList, TrackTag, tcStyle } from "./bits";
 
@@ -44,7 +45,7 @@ export function DaySheet({ dayId, tab }: { dayId: string; tab: SheetTab }) {
         <button className="btn" onClick={() => setExpand(v => !v)}>{d.lessonFull ? "Rewrite the full lesson" : "✨ Expand lesson"}</button>
         {d.lessonFull && <button className="btn ghost sm" onClick={() => setShort(v => !v)}>{short ? "Show the full lesson" : "Show the short version"}</button>}
       </div>
-      {expand && <Bridge mode="text" prompt={() => expandPrompt(s, d)} pasteLabel="Paste the lesson Markdown" cta="Save full lesson"
+      {(expand || latestJob(s.jobs, `expand:${dayId}`)) && <Bridge jobKey={`expand:${dayId}`} mode="text" prompt={() => expandPrompt(s, d)} pasteLabel="Paste the lesson Markdown" cta="Save full lesson"
         onText={txt => { saveLessonFull(dayId, txt); setShort(false); ui.toast("Full lesson saved"); }} onDone={() => setExpand(false)} />}
     </div>;
   } else if (cur === "tasks") {
@@ -63,13 +64,13 @@ export function DaySheet({ dayId, tab }: { dayId: string; tab: SheetTab }) {
       <div className="chat">{turns.length ? turns.map((m, i) => m.role === "user"
         ? <div key={i} className="msg user">{m.content}</div>
         : <div key={i} className="msg ai"><Prose text={m.content} /></div>)
-        : <div className="card"><b>Ask about this day.</b> <span className="muted">Write a question, copy the prompt into Claude or ChatGPT (it carries this lesson, your checklist and the track's files), then paste the answer back to keep it here.</span></div>}</div>
+        : <div className="card"><b>Ask about this day.</b> <span className="muted">Write a question and ask AI. The laptop helper carries this lesson, your checklist, files and conversation history, then saves the answer here.</span></div>}</div>
       <div className="row">{QUICK.map(([l, v]) => <button key={l} className="btn sm" onClick={() => setQ(v)}>{l}</button>)}
         {turns.length > 0 && <button className="btn sm ghost" style={{ marginLeft: "auto" }} onClick={() => saveChat(dayId, [])}>Clear chat</button>}</div>
       <div className="field"><label htmlFor="ask-q">Your question</label>
         <textarea id="ask-q" value={q} onChange={e => setQ(e.target.value)} placeholder="e.g. Why does the comparator need const auto&?" /></div>
-      {q.trim() && <Bridge mode="text" prompt={() => chatPrompt(s, d, today, turns, q)} pasteLabel="Paste the answer" cta="Save to this day"
-        onText={a => { saveChat(dayId, [...turns, { role: "user", content: q.trim() }, { role: "assistant", content: a }]); setQ(""); }} />}
+      {(q.trim() || latestJob(s.jobs, `chat:${dayId}`)) && <Bridge jobKey={`chat:${dayId}`} context={{ question: q.trim() }} mode="text" prompt={() => chatPrompt(s, d, today, turns, q)} pasteLabel="Paste the answer" cta="Save to this day"
+        onText={(a, context) => { saveChat(dayId, [...turns, { role: "user", content: context?.question || q.trim() }, { role: "assistant", content: a }]); setQ(""); }} />}
     </div>;
   }
 

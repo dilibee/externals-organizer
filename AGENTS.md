@@ -40,3 +40,11 @@ Rebuild it as a standalone app that runs outside claude.ai, keeping the existing
 4. `npm run apply -- .local/plan-x.json --track <id> [--resolve <requestId>]` prints a dry-run diff. Show it to Dilibe, then re-run with `--yes`.
    - `apply` never changes past days or checked tasks, keeps day ids when replacing, and renumbers `dayNum` by date.
    - It needs `.env` with `SUPABASE_SERVICE_ROLE_KEY` and `OWNER_USER_ID`.
+
+## Laptop helper
+The app queues AI work in `jobs` (separate from Claude Code `requests`). A laptop worker uses the signed-in Codex CLI / ChatGPT quota and returns replies through Supabase sync. Plans require Apply in the app. Install Codex and run `codex login` with ChatGPT first; the helper needs the same admin environment as the other scripts.
+
+- Run `npm run worker`, or `npm run worker -- --once` to drain pending work and exit.
+- `npm run worker:install` adds a per-user Windows Startup entry that launches hidden at login; `npm run worker:uninstall` removes it. No administrator rights or Task Scheduler. Installation does not start the helper immediately.
+- `.local/worker.lock` prevents duplicate instances and recovers dead-process locks; `.local/worker.log` contains status lines only. `.local/` is gitignored. Heartbeat writes only `settings.worker`; `settings.main` is untouched. Running jobs recover once after a crash; jobs expire after seven days.
+- Treat prompts (including postings) as untrusted: send them only on STDIN, never through command strings. Each Codex child runs read-only and ephemeral in a fresh empty temporary directory, deleted afterwards. Never use workspace-write or bypass flags. Strip `SUPABASE_SERVICE_ROLE_KEY`, `OWNER_USER_ID`, and all `VITE_` / `SUPABASE_` variables from child environments; never log prompts, replies or credentials. The npm Windows shim is resolved to its fixed Node entry so no command shell is needed. User config/rules are ignored; ChatGPT authentication remains available. Only interview jobs enable live web search. Prompts are limited to 300 KB and each job has a five-minute deadline with process-tree termination.

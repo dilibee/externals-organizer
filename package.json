@@ -11,7 +11,10 @@
     "seed:local": "tsx scripts/seed-local.ts",
     "import": "tsx scripts/import-original.ts",
     "snapshot": "tsx scripts/snapshot.ts",
-    "apply": "tsx scripts/apply.ts"
+    "apply": "tsx scripts/apply.ts",
+    "worker": "tsx scripts/worker.ts",
+    "worker:install": "tsx scripts/worker-startup.ts",
+    "worker:uninstall": "tsx scripts/worker-startup.ts --uninstall"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

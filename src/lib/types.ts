@@ -50,6 +50,7 @@ export interface ChatTurn { role: "user" | "assistant"; content: string }
 export interface Chat { dayId: string; turns: ChatTurn[]; updatedAt?: string }
 
 export interface Settings {
+  lastSeen?: string;
   hours: Record<string, number>;             // weekday (0 = Sun) -> minutes
   overrides?: Record<string, number>;        // YYYY-MM-DD -> minutes, wins over hours
 }
@@ -95,6 +96,7 @@ export interface Suggestion {
 }
 
 export interface Collections {
+  jobs: Job;
   tracks: Track;
   days: Day;
   progress: Progress;
@@ -107,7 +109,15 @@ export interface Collections {
   suggestions: Suggestion;
 }
 export type CollectionName = keyof Collections;
-export const COLLECTIONS: CollectionName[] = ["tracks", "days", "progress", "sources", "chats", "settings", "feedback", "extras", "requests", "suggestions"];
+export const COLLECTIONS: CollectionName[] = ["jobs", "tracks", "days", "progress", "sources", "chats", "settings", "feedback", "extras", "requests", "suggestions"];
 
 export type Store = { [K in CollectionName]: Record<string, Collections[K]> };
 export type WithId<T> = T & { id: string };
+
+export interface Job {
+  kind: "text" | "plan"; key: string; label: string; prompt: string; web?: boolean;
+  status: "pending" | "running" | "done" | "error" | "used";
+  result?: string; error?: string; createdAt: string; startedAt?: string; finishedAt?: string;
+  retries?: number;
+  context?: Record<string, string>;
+}

@@ -32,6 +32,6 @@ L.push("", "## Open suggestions", ...Object.entries(s.suggestions).filter(([, x]
 L.push("", `Active tracks: ${activeTracks(s).map(t => t.id).join(", ")}`);
 
 mkdirSync(join(ROOT, ".local"), { recursive: true });
-writeFileSync(join(ROOT, ".local", "snapshot.json"), JSON.stringify({ ...s, chats: {} }, null, 1));
+writeFileSync(join(ROOT, ".local", "snapshot.json"), JSON.stringify({ ...s, chats: {}, jobs: {} }, null, 1));
 writeFileSync(join(ROOT, ".local", "snapshot.md"), L.join("\n"));
 console.log(`Wrote .local/snapshot.md and .local/snapshot.json (${Object.keys(s.days).length} days, ${Object.keys(s.feedback).length} check-ins)`);

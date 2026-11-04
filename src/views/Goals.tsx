@@ -6,6 +6,7 @@ import { DEFAULT_HOURS, catchup, dayList, nextDeadline, paceSignals, stats, trac
 import { adaptPrompt, draftPrompt, interviewPrompt, type GoalDraft, type InterviewInfo } from "../lib/prompts";
 import type { Store, Track, WithId } from "../lib/types";
 import { useToday, useUI } from "../ui";
+import { latestJob } from "../lib/jobs";
 import { Bridge } from "../components/Bridge";
 import { Inline, TrackTag, tcStyle } from "../components/bits";
 
@@ -61,12 +62,12 @@ function GoalRow({ s, t, idx, n, today }: { s: Store; t: WithId<Track>; idx: num
         </div></details>
       <div className="spread"><span className="muted small">{tdays.length ? `${tdays.length} days, ${short(tdays[0])} to ${short(tdays[tdays.length - 1])}` : "No days yet."}</span>
         {!t.paused && <div className="row"><button className="btn sm" onClick={() => setAdapt(v => !v)}>🔄 Adapt next week</button></div>}</div>
-      {adapt && <div className="stack">
+      {(adapt || latestJob(s.jobs, `adapt:${t.id}`)) && <div className="stack">
         <div className="field"><label htmlFor={`note-${t.id}`}>Anything to focus on or avoid? (optional)</label>
           <textarea id={`note-${t.id}`} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Graphs felt hard; more timed mocks; I'm busy Thursday" style={{ minHeight: 60 }} /></div>
         <div className="row"><button className="btn sm primary" onClick={() => { queueRequest("adapt", { trackId: t.id, note }); ui.toast("Queued. The next Claude Code session will adapt this track."); setAdapt(false); }}>Ask Claude Code to do it</button>
-          <span className="muted small">or do it yourself in a chat:</span></div>
-        <Bridge mode="plan" trackId={t.id} prompt={() => adaptPrompt(s, t.id, today, note)} cta="Apply these changes" onDone={() => setAdapt(false)} />
+          <span className="muted small">or ask the laptop helper:</span></div>
+        <Bridge jobKey={`adapt:${t.id}`} mode="plan" trackId={t.id} prompt={() => adaptPrompt(s, t.id, today, note)} cta="Apply these changes" onDone={() => setAdapt(false)} />
       </div>}
     </div>
   </article>;
@@ -75,6 +76,8 @@ function GoalRow({ s, t, idx, n, today }: { s: Store; t: WithId<Track>; idx: num
 const TYPES = ["Online assessment (OA)", "Technical interview", "Behavioral interview", "Mixed / multiple rounds"];
 function InterviewCard({ s, today }: { s: Store; today: string }) {
   const ui = useUI(); const [open, setOpen] = useState(false); const [saved, setSaved] = useState<InterviewInfo | null>(null);
+  const resumed = Object.values(s.jobs).filter(j => j.key.startsWith("interview:") && j.status !== "used" && j.context?.interview).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const interview = saved || (resumed ? JSON.parse(resumed.context!.interview) as InterviewInfo : null);
   const first = trackList(s).find(t => !t.paused);
   const [f, setF] = useState<InterviewInfo>({ company: "", role: "", date: "", time: "", type: TYPES[0], posting: "", notes: "", trackId: first?.id || "" });
   const set = (k: keyof InterviewInfo) => (e: { target: { value: string } }) => setF(v => ({ ...v, [k]: e.target.value }));
@@ -101,10 +104,10 @@ function InterviewCard({ s, today }: { s: Store; today: string }) {
       <div className="field"><label htmlFor="iv-n">Notes (optional)</label><input id="iv-n" value={f.notes} onChange={set("notes")} placeholder="e.g. 60 min HackerRank, 3 questions; recruiter said SQL may come up" /></div>
       <div className="row"><button className="btn primary" disabled={!f.company || !f.date || !f.trackId} onClick={save}>Add interview</button><button className="btn ghost" onClick={() => setOpen(false)}>Cancel</button></div>
     </div>}
-    {saved && <div className="stack" style={{ background: "var(--card)", color: "var(--body)", borderRadius: 16, padding: 16 }}>
-      <b style={{ color: "var(--ink)" }}>✓ {saved.company} on {short(saved.date)} is on your timeline.</b>
-      <span className="muted">The next Claude Code session will research it and add prep days (it's queued). Want it now? Run it in a chat with web search:</span>
-      <Bridge mode="plan" trackId={saved.trackId} prompt={() => interviewPrompt(s, saved, today)} pasteLabel="Paste the reply (the JSON part is picked out automatically)" cta="Add prep days" onDone={() => { setSaved(null); setOpen(false); }} />
+    {interview && <div className="stack" style={{ background: "var(--card)", color: "var(--body)", borderRadius: 16, padding: 16 }}>
+      <b style={{ color: "var(--ink)" }}>✓ {interview.company} on {short(interview.date)} is on your timeline.</b>
+      <span className="muted">The next Claude Code session will research it and add prep days (it's queued). You can also ask the laptop helper with web search:</span>
+      <Bridge jobKey={`interview:${interview.trackId}:${interview.company}:${interview.date}`} context={{ interview: JSON.stringify(interview) }} web mode="plan" trackId={interview.trackId} prompt={() => interviewPrompt(s, interview, today)} pasteLabel="Paste the reply (the JSON part is picked out automatically)" cta="Add prep days" onDone={() => { setSaved(null); setOpen(false); }} />
       <div><button className="btn ghost sm" onClick={() => { setSaved(null); setOpen(false); }}>Done</button></div>
     </div>}
   </section>;
@@ -147,9 +150,9 @@ function NewGoal({ s, today }: { s: Store; today: string }) {
       <div className="field"><label htmlFor="g-m">Minutes per day</label><input id="g-m" type="number" min={15} step={15} value={f.mins} onChange={set("mins")} /></div></div>
     <div className="row"><button className="btn primary" disabled={!f.name || !f.goal} onClick={() => setStep(true)}>Draft plan</button>
       <button className="btn" disabled={!f.name || !f.goal} onClick={() => { queueRequest("newTrack", { ...f }); ui.toast("Queued for the next Claude Code session"); }}>Ask Claude Code instead</button></div>
-    {step && <Bridge mode="plan" prompt={() => draftPrompt(s, f, today)} cta="Save goal and plan"
-      beforeSave={plan => createTrack(f.name, { short: String(plan.short || f.name).slice(0, 14), goal: String(plan.goal || f.goal), level: f.level, deadline: f.deadline || null,
-        milestones: [...(plan.milestones || []), ...(f.deadline ? [{ date: f.deadline, label: `${f.name}: deadline` }] : [])] })}
+    {(step || latestJob(s.jobs, "goal:new")) && <Bridge jobKey="goal:new" context={{ draft: JSON.stringify(f) }} mode="plan" prompt={() => draftPrompt(s, f, today)} cta="Save goal and plan"
+      beforeSave={(plan, context) => { const draft: GoalDraft = context?.draft ? JSON.parse(context.draft) : f; return createTrack(draft.name, { short: String(plan.short || draft.name).slice(0, 14), goal: String(plan.goal || draft.goal), level: draft.level, deadline: draft.deadline || null,
+        milestones: [...(plan.milestones || []), ...(draft.deadline ? [{ date: draft.deadline, label: `${draft.name}: deadline` }] : [])] }); }}
       onDone={() => { setStep(false); setF({ name: "", goal: "", level: "", deadline: "", mins: 45, paste: "" }); }} />}
   </section>;
 }

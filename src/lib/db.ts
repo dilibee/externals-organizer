@@ -136,3 +136,27 @@ export function importStore(json: Partial<Store>) {
   state = { ...state, store: { ...empty(), ...json } }; emit(); saveLocal();
 }
 export const exportStore = () => JSON.stringify(state.store, null, 1);
+
+/** Publish a job locally only after its insert succeeds. */
+export async function createJob(id: string, job: Collections["jobs"]) {
+  if (!supabase || !state.session) throw new Error("Not signed in");
+  const { error } = await supabase.from("docs").insert({
+    user_id: state.session.user.id, collection: "jobs", id, data: job, updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+  put("jobs", id, job); emit();
+}
+
+/** Compare-and-swap, with no optimistic write: only the winner may consume a reply. */
+export async function transitionJob(id: string, expected: Collections["jobs"]["status"], patch: Partial<Collections["jobs"]>) {
+  if (!supabase || !state.session) return false;
+  const { data: rows, error } = await supabase.from("docs").select("data").match({ user_id: state.session.user.id, collection: "jobs", id }).single();
+  if (error) throw error;
+  if (rows.data.status !== expected) return false;
+  const next = { ...rows.data, ...patch };
+  const { data, error: err } = await supabase.from("docs").update({ data: next, updated_at: new Date().toISOString() })
+    .match({ user_id: state.session.user.id, collection: "jobs", id }).eq("data->>status", expected).select("id");
+  if (err) throw err;
+  if (!data?.length) return false;
+  put("jobs", id, next); emit(); return true;
+}
