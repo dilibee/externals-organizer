@@ -6,6 +6,7 @@ import { activeTracks, catchup, catchupCount, catchupExtras, fitIntoSpare, leftT
 import { useToday, useUI } from "../ui";
 import { Segs, TaskList, TrackTag, tcStyle } from "../components/bits";
 import { ExtraList } from "./Today";
+import { Bridge } from '../components/Bridge';
 
 export function Catchup() {
   const { store: s } = useDB(); const today = useToday(); const ui = useUI();
@@ -20,6 +21,10 @@ export function Catchup() {
   const add = () => { if (!text.trim()) return; addExtra({ text: text.trim(), trackId: tid || undefined, min: Math.max(5, Number(min) || 30), source: "manual" }); setText(""); ui.toast("Added to Catch-up"); };
 
   return <div className="stack" style={{ gap: 18 }}>
+    {Object.entries(s.jobs).filter(([,j])=>j.key.startsWith('nightly-catchup:')&&j.status!=='used').map(([id,j])=><section className="card stack" key={id}>
+      <h3>Overnight catch-up proposal</h3><p className="muted">Review the changes, then Apply or dismiss them.</p>
+      <Bridge jobKey={j.key} mode="plan" prompt={()=>j.prompt} cta="Apply" />
+    </section>)}
     <section className="callout"><div><span className="label">Catch-up</span><h2>{tasksLeft ? `${tasksLeft} thing${tasksLeft === 1 ? "" : "s"} still open.` : "All caught up! ✨"}</h2>
       <p className="muted" style={{ margin: "4px 0 0" }}>Missed tasks, weak spots from your check-ins, and anything you add yourself. Oldest first.</p></div>
       <div className="figs"><div><b className="num">{tasksLeft}</b><span>items</span></div><div><b className="num">{fmtMin(mins)}</b><span>of work</span></div></div></section>
