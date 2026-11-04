@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MON, addDays, diffDays, fmtMin, nice, parse, relDays } from "../lib/dates";
 import { useDB } from "../lib/db";
 import { acceptSuggestion, completeCarry, elapsedMin, setOverride, setSuggestion, startTimer, stopTimer } from "../lib/actions";
-import { availMin, catchup, catchupCount, dayComplete, dayDoneCount, dayList, dayMinutes, daysOn, doneMinutes, extrasOn, focusQueue, leftTasks, openExtras, plannedOn, upcomingMilestones, type QueueItem } from "../lib/planner";
+import { availMin, catchup, catchupCount, catchupExtras, dayComplete, dayDoneCount, dayList, dayMinutes, daysOn, doneMinutes, extrasOn, focusQueue, leftTasks, openExtras, plannedOn, upcomingMilestones, type QueueItem } from "../lib/planner";
 import type { Store } from "../lib/types";
 import { useTick, useToday, useUI } from "../ui";
 import { Inline, KindPill, MiniRing, Segs, TaskList, TimeRing, TrackTag, plural, tColor, tcStyle, useCheck } from "../components/bits";
@@ -22,7 +22,7 @@ export function Today({ go }: { go: (v: string) => void }) {
   const over = planned - avail;
   const ms = upcomingMilestones(s, today, 6);
   const cu = catchup(s, today);
-  const cuMin = cu.reduce((a, d) => a + leftTasks(s, d).reduce((x, t) => x + t.min, 0), 0) + openExtras(s).filter(x => !x.planFor || x.planFor < today).reduce((a, x) => a + x.min, 0);
+  const cuMin = cu.reduce((a, d) => a + leftTasks(s, d).reduce((x, t) => x + t.min, 0), 0) + catchupExtras(s, today).reduce((a, x) => a + x.min, 0);
   const sugg = Object.entries(s.suggestions).filter(([, x]) => x.status === "new").slice(0, 3);
   const unchecked = dayList(s).filter(d => d.date <= today && d.date >= addDays(today, -3) && dayComplete(s, d) && !s.feedback[d.id]);
   const tracksToday = [...new Set(items.map(d => d.trackId))];
@@ -115,12 +115,14 @@ function NextUp({ s, item }: { s: Store; item: QueueItem }) {
   </article>;
 }
 
-export function ExtraList({ s, items }: { s: Store; items: ReturnType<typeof openExtras> }) {
+export function ExtraList({ s, items, onRemove }: { s: Store; items: ReturnType<typeof openExtras>; onRemove?: (id: string) => void }) {
   const ui = useUI();
   return <ul className="tasks" style={{ marginTop: 8 }}>{items.map(x => <li key={x.id} className="task">
     <input type="checkbox" className="check" id={`x-${x.id}`} style={tcStyle(x.trackId ? s.tracks[x.trackId] : undefined)} checked={!!x.doneAt} onChange={e => { completeCarry(x.id, e.target.checked); if (e.target.checked) ui.celebrate(Math.round(x.min)); }} />
     <label className="tx" htmlFor={`x-${x.id}`}><Inline text={x.text} /> {x.trackId && <TrackTag t={s.tracks[x.trackId]} />}</label>
-    <span className="mins num">{fmtMin(x.min)}</span>
+    {onRemove ? <div className="stack" style={{ gap: 4, alignItems: "end" }}><span className="mins num">{fmtMin(x.min)}</span>
+      <button className="btn ghost sm" onClick={() => onRemove(x.id)} aria-label={`Remove ${x.text}`}>Remove</button></div>
+      : <span className="mins num">{fmtMin(x.min)}</span>}
   </li>)}</ul>;
 }
 

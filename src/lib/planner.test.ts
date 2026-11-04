@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { availMin, catchup, daysOn, extrasOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, plannedOn, stats, taskXP } from "./planner";
+import { availMin, catchup, catchupCount, catchupExtras, daysOn, extrasOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, plannedOn, stats, taskXP } from "./planner";
 import { COLLECTIONS, type Day, type Store } from "./types";
 
 const T = "2026-10-28"; // a Wednesday
@@ -28,6 +28,40 @@ describe("ordering", () => {
 });
 
 describe("catch-up", () => {
+  it("counts unfinished tasks without counting a past-date linked carry twice", () => {
+    const s = mk({ days: { old: day("a", "2026-10-26", [30, 20, 10]) },
+      progress: { old: { dayId: "old", trackId: "a", done: { t3: T } } },
+      extras: { carry: { text: "copy", min: 30, source: "carry", fromDayId: "old", fromTaskId: "t1", planFor: "2026-10-27", createdAt: "1" } } });
+    expect(catchupExtras(s, T)).toEqual([]);
+    expect(catchupCount(s, T)).toBe(2);
+  });
+  it("counts a standalone manual extra once", () => {
+    const s = mk({ extras: { manual: { text: "Practice", min: 20, source: "manual", createdAt: "1" } } });
+    expect(catchupExtras(s, T).map(x => x.id)).toEqual(["manual"]);
+    expect(catchupCount(s, T)).toBe(1);
+  });
+  it("keeps carries with deleted original days or no original task reachable", () => {
+    const s = mk({ days: { old: day("a", "2026-10-26", [30]) }, extras: {
+      orphan: { text: "Deleted day", min: 20, source: "carry", fromDayId: "deleted", fromTaskId: "t1", planFor: "2026-10-27", createdAt: "1" },
+      standalone: { text: "Whole day", min: 10, source: "carry", fromDayId: "old", createdAt: "2" },
+    } });
+    expect(catchupExtras(s, T).map(x => x.id)).toEqual(["orphan", "standalone"]);
+    expect(catchupCount(s, T)).toBe(3);
+  });
+  it("keeps a carry reachable when its original task was removed from the day", () => {
+    const s = mk({ days: { old: day("a", "2026-10-26", [30]) }, extras: {
+      gone: { text: "Removed task", min: 20, source: "carry", fromDayId: "old", fromTaskId: "t9", planFor: "2026-10-27", createdAt: "1" },
+    } });
+    expect(catchupExtras(s, T).map(x => x.id)).toEqual(["gone"]);
+  });
+  it("reschedules expired carries but skips tasks carried to today or a future date", () => {
+    const s = mk({ days: { old: day("a", "2026-10-26", [30, 20, 10]) }, extras: {
+      expired: { text: "Expired", min: 30, source: "carry", fromDayId: "old", fromTaskId: "t1", planFor: "2026-10-27", createdAt: "1" },
+      future: { text: "Future", min: 20, source: "carry", fromDayId: "old", fromTaskId: "t2", planFor: "2026-10-29", createdAt: "2" },
+      today: { text: "Today", min: 10, source: "carry", fromDayId: "old", fromTaskId: "t3", planFor: T, createdAt: "3" },
+    } });
+    expect(fitIntoSpare(s, T).map(x => [x.taskId, x.date])).toEqual([["t1", T]]);
+  });
   it("keeps completed scheduled extras in the day and planned time but out of the focus queue", () => {
     const s = mk({ days: { d: day("a", T, [30]) }, extras: {
       done: { text: "done carry", trackId: "a", min: 15, source: "carry", planFor: T, doneAt: T, createdAt: "1" },

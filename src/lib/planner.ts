@@ -49,7 +49,12 @@ export const extrasOn = (s: Store, date: string): WithId<Extra>[] =>
   Object.entries(s.extras).map(([id, x]) => ({ id, ...x }))
     .filter(x => x.planFor === date && (!x.trackId || (s.tracks[x.trackId] && !s.tracks[x.trackId].paused)))
     .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
-export const catchupCount = (s: Store, today: string) => catchup(s, today).length + openExtras(s).filter(x => !x.planFor || x.planFor < today).length;
+/** Linked carries remain represented by their original day; orphaned carries stay reachable. */
+export const catchupExtras = (s: Store, today: string) => openExtras(s)
+  .filter(x => (!x.planFor || x.planFor < today)
+    && !(x.source === "carry" && x.fromDayId && x.fromTaskId && s.days[x.fromDayId]?.tasks?.some(t => t.id === x.fromTaskId)));
+export const catchupCount = (s: Store, today: string) =>
+  catchup(s, today).reduce((n, d) => n + leftTasks(s, d).length, 0) + catchupExtras(s, today).length;
 
 export function availMin(settings: Settings | undefined, date: string) {
   const o = settings?.overrides?.[date];
@@ -138,7 +143,7 @@ export function fitIntoSpare(s: Store, today: string, horizon = 10) {
   const spare: Record<string, number> = {};
   for (let i = 0; i < horizon; i++) { const d = addDays(today, i); spare[d] = availMin(s.settings.main, d) - plannedOn(s, d); }
   const out: { dayId: string; taskId: string; trackId: string; text: string; min: number; date: string }[] = [];
-  const carried = new Set(Object.values(s.extras).filter(x => x.source === "carry" && !x.doneAt).map(x => `${x.fromDayId}:${x.fromTaskId}`));
+  const carried = new Set(Object.values(s.extras).filter(x => x.source === "carry" && !x.doneAt && x.planFor && x.planFor >= today).map(x => `${x.fromDayId}:${x.fromTaskId}`));
   for (const d of prioritize(s, catchup(s, today), today)) {
     const limit = nextDeadline(s.tracks[d.trackId], today) || addDays(today, horizon - 1);
     for (const t of leftTasks(s, d)) {
