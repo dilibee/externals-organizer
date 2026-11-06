@@ -1,3 +1,4 @@
+import { claudeFallback } from './claude-fallback';
 import { spawn, execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
@@ -24,7 +25,8 @@ export function runCodex(prompt: string, web = false, timeoutMs = 300_000): Prom
   const cli = codexCommand();
   const cwd = mkdtempSync(join(tmpdir(), "externals-ai-"));
   const output = join(cwd, "answer.txt");
-  return new Promise((resolveResult, reject) => {
+  const started=Date.now();
+  const codexResult = new Promise<string>((resolveResult, reject) => {
     const child = spawn(cli.command, [...cli.args, "exec", "-s", "read-only", "--ephemeral", "--skip-git-repo-check",
       "--ignore-user-config", "--ignore-rules", "-c", `web_search="${web ? "live" : "disabled"}"`, "-o", output, "-"],
       { cwd, env: childEnv(), shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["pipe", "ignore", "pipe"] });
@@ -57,5 +59,22 @@ export function runCodex(prompt: string, web = false, timeoutMs = 300_000): Prom
       } catch (e) { reject(e); }
       finally { rmSync(cwd, { recursive: true, force: true }); }
     });
+  });
+  return fallbackOnQuota(codexResult,web,async()=>{
+    const fallbackCwd=mkdtempSync(join(tmpdir(),'externals-claude-'));
+    try{
+      const result=await claudeFallback({cwd:fallbackCwd,prompt,timeout:timeoutMs-(Date.now()-started),env:childEnv()});
+      return result;
+    }finally{rmSync(fallbackCwd,{recursive:true,force:true});}
+  });
+}
+
+// Injectable boundary keeps quota routing testable without launching either CLI.
+export function fallbackOnQuota(primary:Promise<string>,web:boolean,fallback:()=>Promise<string|null>):Promise<string>{
+  return primary.catch(async error=>{
+    if(web||!(error instanceof Error)||!error.message.includes('usage quota is exhausted'))throw error;
+    const result=await fallback();
+    if(result===null)throw error;
+    return result;
   });
 }
