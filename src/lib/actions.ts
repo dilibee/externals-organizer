@@ -135,3 +135,8 @@ export function acceptSuggestion(id: string, date?: string) {
   addExtra({ text: sg.text, trackId: sg.trackId, min: sg.min || 20, source: "manual", ...(date ? { planFor: date } : {}) });
   setSuggestion(id, "accepted");
 }
+
+export function saveNote(dayId: string, text: string) {
+  const d = getStore().days[dayId]; if (!d) return;
+  return text.trim() ? setDoc("notes", dayId, { dayId, trackId: d.trackId, text, updatedAt: now() }) : deleteDoc("notes", dayId);
+}

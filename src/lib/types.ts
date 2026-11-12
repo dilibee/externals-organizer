@@ -95,7 +95,10 @@ export interface Suggestion {
   createdAt?: string;
 }
 
+export interface Note { dayId: string; trackId: string; text: string; updatedAt: string }
+
 export interface Collections {
+  notes: Note;
   jobs: Job;
   tracks: Track;
   days: Day;
@@ -109,7 +112,7 @@ export interface Collections {
   suggestions: Suggestion;
 }
 export type CollectionName = keyof Collections;
-export const COLLECTIONS: CollectionName[] = ["jobs", "tracks", "days", "progress", "sources", "chats", "settings", "feedback", "extras", "requests", "suggestions"];
+export const COLLECTIONS: CollectionName[] = ["notes", "jobs", "tracks", "days", "progress", "sources", "chats", "settings", "feedback", "extras", "requests", "suggestions"];
 
 export type Store = { [K in CollectionName]: Record<string, Collections[K]> };
 export type WithId<T> = T & { id: string };

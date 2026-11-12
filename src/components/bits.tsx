@@ -1,3 +1,4 @@
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, CornerDownRight, X, Check, Zap, NotebookPen, Lightbulb, CloudSun, Sparkles, WandSparkles, RefreshCw, Target, Flag, Pencil, Play, Pause } from "lucide-react";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { fmtMin } from "../lib/dates";
 import { md, inline } from "../lib/markdown";
@@ -23,7 +24,7 @@ export function Segs({ s, d }: { s: Store; d: WithId<Day> }) {
 export const Inline = ({ text }: { text: string }) => <span dangerouslySetInnerHTML={{ __html: inline(text) }} />;
 
 /** Markdown with working Copy buttons on code blocks. */
-export function Prose({ text }: { text: string }) {
+export function Prose({ text, large = false }: { text: string; large?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current; if (!el) return;
@@ -34,7 +35,7 @@ export function Prose({ text }: { text: string }) {
     };
     el.addEventListener("click", onClick); return () => el.removeEventListener("click", onClick);
   }, []);
-  return <div ref={ref} className="prose" dangerouslySetInnerHTML={{ __html: md(text) }} />;
+  return <div ref={ref} className={large ? "prose prose-lg" : "prose"} dangerouslySetInnerHTML={{ __html: md(text) }} />;
 }
 
 /** Check a task off; if that finishes the day, celebrate and open the check-in. */
@@ -57,7 +58,7 @@ export function TaskList({ s, d }: { s: Store; d: WithId<Day> }) {
     const on = !!dm[t.id]; const id = `cb-${d.id}-${t.id}`; const act = p?.actual?.[t.id];
     return <li key={t.id} className={`task ${on ? "done" : ""}`}>
       <input type="checkbox" className="check" id={id} checked={on} onChange={e => check(d.id, t.id, e.target.checked)} />
-      <label className="tx" htmlFor={id}><Inline text={t.text} />{t.url && <a className="lc" href={t.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>{/leetcode/.test(t.url) ? "LeetCode" : "Open"} ↗</a>}</label>
+      <label className="tx" htmlFor={id}><Inline text={t.text} />{t.url && <a className="lc" href={t.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>{/leetcode/.test(t.url) ? "LeetCode" : "Open"} <Icon name="ArrowUpRight" /></a>}</label>
       <span className="mins num">{p?.timer?.taskId === t.id ? <span className="run">● timing</span> : act ? `${fmtMin(act)} / ${fmtMin(t.min)}` : fmtMin(Number(t.min) || 0)}</span>
     </li>;
   })}</ul>;
@@ -82,3 +83,8 @@ export function MiniRing({ frac, color }: { frac: number; color: string }) {
 }
 
 export const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
+
+export function Bubbles({ white = false }: { white?: boolean }) { return <div className={`bubbles${white ? " white" : ""}`} aria-hidden="true"><i /><i /><i /><i /></div>; }
+
+const ICONS = { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, CornerDownRight, X, Check, Zap, NotebookPen, Lightbulb, CloudSun, Sparkles, WandSparkles, RefreshCw, Target, Flag, Pencil, Play, Pause };
+export function Icon({ name }: { name: keyof typeof ICONS }) { const I = ICONS[name]; return <I aria-hidden="true" />; }

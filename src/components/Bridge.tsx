@@ -11,6 +11,7 @@ import { consumeText, latestJob, workerOnline } from "../lib/jobs";
 const SITES = [{ name: "Claude", url: "https://claude.ai/new" }, { name: "ChatGPT", url: "https://chatgpt.com/" }];
 
 interface Props {
+  manualOnly?: boolean;
   jobKey: string;
   web?: boolean;
   context?: Record<string, string>;
@@ -25,23 +26,45 @@ interface Props {
   onDone?: () => void;
 }
 
-export function Bridge({ jobKey, web, context, prompt, mode, pasteLabel, cta, trackId, beforeSave, onText, onDone }: Props) {
-  const { store } = useDB(); const today = useToday(); const ui = useUI();
+export function useTextJob(jobKey: string, onText?: Props["onText"], enabled = true, options?: { label?: string; web?: boolean }) {
+  const { store } = useDB();
   const job = latestJob(store.jobs, jobKey);
-  const [manual, setManual] = useState(dbMode === "local");
-  const [clock, setClock] = useState(Date.now());
-  const [busy, setBusy] = useState(false);
+  const [clock, setClock] = useState(Date.now()), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   useEffect(() => { const t = setInterval(() => setClock(Date.now()), 15000); return () => clearInterval(t); }, []);
   const online = workerOnline(store.settings.worker?.lastSeen, clock);
   useEffect(() => {
+    if (enabled && job?.status === "done") void consumeText(job, () => transitionJob(job.id, "done", { status: "used" }), answer => onText?.(answer, job.context))
+      .catch(() => setErr("Couldn't save the answer. Check your connection and reopen this view."));
+  }, [job?.id, job?.status, enabled]);
+  const start = async (prompt: string, context?: Record<string, string>) => {
+    setBusy(true); setErr("");
+    try {
+      if (new TextEncoder().encode(prompt).length > 300 * 1024) throw new Error("The prompt is over 300 KB. Remove some context and try again.");
+      await createJob(crypto.randomUUID(), { kind: "text", key: jobKey, label: options?.label || "Ask AI", prompt, ...(options?.web ? { web: true } : {}), ...(context ? { context } : {}), status: "pending", createdAt: new Date().toISOString() });
+      if (job) await transitionJob(job.id, job.status, { status: "used" });
+      return true;
+    } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't queue the job."); return false; }
+    finally { setBusy(false); }
+  };
+  const discard = async () => { setErr(""); try { if (job) await transitionJob(job.id, job.status, { status: "used" }); } catch { setErr("Couldn't dismiss. Try again."); } };
+  return { job, online, busy, err, start, discard, retry: () => job ? start(job.prompt, job.context) : Promise.resolve(false) };
+}
+
+export function Bridge({ manualOnly, jobKey, web, context, prompt, mode, pasteLabel, cta, trackId, beforeSave, onText, onDone }: Props) {
+  const { store } = useDB(); const today = useToday(); const ui = useUI();
+  const textJob = useTextJob(jobKey, (answer, ctx) => { onText?.(answer, ctx); onDone?.(); }, mode === "text" && !manualOnly, { label: cta, web });
+  const job = textJob.job;
+  const [manual, setManual] = useState(dbMode === "local" || !!manualOnly);
+  const [clock, setClock] = useState(Date.now());
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { const t = setInterval(() => setClock(Date.now()), 15000); return () => clearInterval(t); }, []);
+  const online = mode === "text" ? textJob.online : workerOnline(store.settings.worker?.lastSeen, clock);
+  useEffect(() => {
     if (job?.status === "done" && mode === "plan") setText(job.result || "");
-    if (job?.status === "done" && mode === "text") {
-      void consumeText(job, () => transitionJob(job.id, "done", { status: "used" }), answer => {
-        onText?.(answer, job.context); onDone?.();
-      }).catch(() => setErr("Couldn't save the answer. Check your connection and reopen this view."));
-    }
+
   }, [job?.id, job?.status]);
   const start = async () => {
+    if (mode === "text") { if (await (job?.status === "error" ? textJob.retry() : textJob.start(prompt(), context))) setText(""); return; }
     setBusy(true); setErr("");
     try {
       const retrying = job?.status === "error";
@@ -103,13 +126,13 @@ export function Bridge({ jobKey, web, context, prompt, mode, pasteLabel, cta, tr
   };
 
   return <div className="bridge">
-    {dbMode !== "local" && <div className="stack" style={{ gap: 8 }}>
+    {dbMode !== "local" && !manualOnly && <div className="stack" style={{ gap: 8 }}>
       {!online && <p className="muted small">Laptop helper is offline. Your job will run when the laptop is on and the helper is running.</p>}
       {(job?.status === "pending" || job?.status === "running") ? <div className="row" role="status">
         <span>{job.status === "pending" ? "Waiting for laptop helper..." : "AI is working..."}</span>
         <button className="btn sm" onClick={() => void discard().catch(() => setErr("Couldn't cancel. Try again."))}>Cancel</button>
-      </div> : job?.status === "error" ? <div className="stack"><p role="alert">{job.error}</p><div className="row"><button className="btn primary" disabled={busy} onClick={start}>Retry</button><button className="btn" disabled={busy} onClick={() => void discard().catch(() => setErr("Couldn't dismiss. Try again."))}>Dismiss</button></div></div>
-        : job?.status !== "done" && <button className="btn primary" disabled={busy} onClick={start}>Ask AI</button>}
+      </div> : job?.status === "error" ? <div className="stack"><p role="alert">{job.error}</p><div className="row"><button className="btn primary" disabled={busy || textJob.busy} onClick={start}>Retry</button><button className="btn" disabled={busy || textJob.busy} onClick={() => void discard().catch(() => setErr("Couldn't dismiss. Try again."))}>Dismiss</button></div></div>
+        : job?.status !== "done" && <button className="btn primary" disabled={busy || textJob.busy} onClick={start}>Ask AI</button>}
       <button className="btn ghost sm" onClick={() => setManual(v => !v)}>{manual ? "Hide manual flow" : "Do it manually"}</button>
     </div>}
     {manual && <>
@@ -130,6 +153,7 @@ export function Bridge({ jobKey, web, context, prompt, mode, pasteLabel, cta, tr
       <ul>{preview.ch.summary.map((x, i) => <li key={i}>{x}</li>)}</ul>
       {preview.ch.skipped.length > 0 && <ul className="skip">{preview.ch.skipped.map((x, i) => <li key={i}>{x}</li>)}</ul>}
     </div>}
+    {textJob.err && <div role="alert">{textJob.err}</div>}
     {err && <div className="pill bad" style={{ whiteSpace: "normal" }}>{err}</div>}
     {(manual || (mode === "plan" && job?.status === "done")) && <div className="row"><button className="btn primary" onClick={save} disabled={!text.trim()}>{manual ? cta || "Save" : "Apply"}</button>
       {!manual && <button className="btn" onClick={() => void discard().catch(() => setErr("Couldn't discard. Try again."))}>Discard</button>}</div>}

@@ -38,7 +38,7 @@ export const CHAT_RULES = `You are the study coach inside Dilibe's planner. Rule
 
 export function chatPrompt(s: Store, d: WithId<Day>, today: string, turns: { role: string; content: string }[], question: string) {
   const history = turns.slice(-10).map(m => `${m.role === "user" ? "Dilibe" : "Coach"}: ${m.content}`).join("\n\n");
-  return `${CHAT_RULES}\n\n${dayContext(s, d, today)}\n\n${history ? `Conversation so far:\n${history}\n\n` : ""}Dilibe's question:\n${question}`;
+  return `${CHAT_RULES}\n\n${dayContext(s, d, today)}\n\n${s.notes[d.id]?.text ? `Student's own notes for this day:\n${s.notes[d.id].text}\n\n` : ""}${history ? `Conversation so far:\n${history}\n\n` : ""}Dilibe's question:\n${question}`;
 }
 
 export function expandPrompt(s: Store, d: WithId<Day>) {

@@ -1,3 +1,4 @@
+import { Icon } from "./bits";
 // End-of-day check-in: how it felt, real time spent, what still needs work. Feeds adaptation.
 import { useState } from "react";
 import { fmtMin } from "../lib/dates";
@@ -32,7 +33,7 @@ export function CheckIn({ dayId }: { dayId: string }) {
   return <>
     <div className="scrim modal-scrim" onClick={ui.closeCheckIn} />
     <div className="modal" role="dialog" aria-modal="true" aria-labelledby="ciTitle">
-      <div className="spread"><TrackTag t={t} /><button className="btn circle ghost" onClick={ui.closeCheckIn} aria-label="Close">✕</button></div>
+      <div className="spread"><TrackTag t={t} /><button className="btn circle ghost" onClick={ui.closeCheckIn} aria-label="Close"><Icon name="X" /></button></div>
       <div><h3 id="ciTitle">How did “{d.title}” go?</h3><p className="muted small" style={{ margin: "4px 0 0" }}>Your answers reshape the next days: harder if it was easy, smaller steps if it was hard.</p></div>
       <div className="ratings" role="group" aria-label="Difficulty">{RATINGS.map(r =>
         <button key={r.k} aria-pressed={rating === r.k} onClick={() => setRating(r.k)}><span className="e">{r.e}</span>{r.l}</button>)}</div>

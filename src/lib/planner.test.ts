@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { availMin, catchup, catchupCount, catchupExtras, daysOn, extrasOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, plannedOn, stats, taskXP } from "./planner";
+import { activityByDate, availMin, catchup, catchupCount, catchupExtras, daysOn, extrasOn, fitIntoSpare, focusQueue, levelInfo, paceSignals, plannedOn, stats, taskXP } from "./planner";
 import { COLLECTIONS, type Day, type Store } from "./types";
 
 const T = "2026-10-28"; // a Wednesday
@@ -139,4 +139,26 @@ describe("pace", () => {
     expect(p.notes.some(n => n.startsWith("Taking 50% longer"))).toBe(true);
     expect(paceSignals(s, "b")).toBeNull();
   });
+});
+
+describe("activity by completion date", () => {
+ it("aggregates checked task minutes on completion dates rather than planned dates", () => {
+  const s = mk({ days: { d: day("a", "2026-10-01", [30, 50, 90]) }, progress: { d: { dayId: "d", trackId: "a", done: { t1: T, t2: "2026-10-29", deleted: T }, actual: { t1: 99 } } } });
+  expect(activityByDate(s)).toEqual({ [T]: 30, "2026-10-29": 50 });
+ });
+ it("matches stats totals including paused history and extras, excluding linked carries and missing tracks", () => {
+  const s = mk({ days: { d: day("a", T, [30]), missing: day("gone", T, [100]) }, progress: { d: { dayId: "d", trackId: "a", done: { t1: T } }, missing: { dayId: "missing", trackId: "gone", done: { t1: T } } }, extras: {
+   linked: { text: "copy", min: 30, source: "carry", fromDayId: "d", fromTaskId: "t1", doneAt: T, createdAt: T },
+   manual: { text: "extra", min: 20, source: "manual", doneAt: T, createdAt: T },
+   standalone: { text: "review", min: 15, source: "carry", doneAt: "2026-10-29", createdAt: T },
+   open: { text: "pending", min: 90, source: "manual", createdAt: T },
+  } });
+  s.tracks.a.paused = true;
+  expect(activityByDate(s)).toEqual({ [T]: 50, "2026-10-29": 15 });
+  expect(Object.values(activityByDate(s)).reduce((a, b) => a + b, 0)).toBe(stats(s, T).mins);
+ });
+ it("returns no activity for an empty store and groups ISO timestamps by their recorded date", () => {
+  expect(activityByDate(mk())).toEqual({});
+  expect(activityByDate(mk({ extras: { x: { text: "extra", min: 10, source: "manual", doneAt: T + "T23:00:00Z", createdAt: T } } }))).toEqual({ [T]: 10 });
+ });
 });

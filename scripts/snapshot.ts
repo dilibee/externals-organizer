@@ -23,6 +23,7 @@ for (const t of trackList(s)) {
   for (const d of dayList(s).filter(d => d.trackId === t.id).sort((a, b) => (a.date < b.date ? -1 : 1))) {
     const f = s.feedback[d.id];
     L.push(`- ${d.id} ${d.date} ${d.kind} "${d.title}" ${dayDoneCount(s, d)}/${d.tasks.length} done, ${dayMinutes(d)} min${f ? ` | check-in: ${f.rating}, ${f.actualMin} min${f.needsWork.length ? ", needs work: " + f.needsWork.join("; ") : ""}${f.comment ? `, "${f.comment}"` : ""}` : ""}`);
+    if (s.notes[d.id]) L.push(`  My notes (${d.id}): ${JSON.stringify(s.notes[d.id].text)}`);
   }
 }
 L.push("", "## Catch-up (unfinished past days)", ...catchup(s, today).map(d => `- ${d.id} ${d.date} ${d.title}`));

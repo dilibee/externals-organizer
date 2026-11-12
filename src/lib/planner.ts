@@ -99,6 +99,15 @@ export function stats(s: Store, today: string) {
   return { streak, mins, tasks, perTrack, xp, studiedToday: dates.has(today), ...levelInfo(xp) };
 }
 
+/** Completion minutes by recorded date, using the same carry exclusions as stats. */
+export function activityByDate(s: Store): Record<string, number> {
+ const out: Record<string, number> = {};
+ const add = (date: string, min: number) => { const key = date.slice(0, 10); out[key] = (out[key] || 0) + (Number(min) || 0); };
+ for (const [id, d] of Object.entries(s.days)) if (s.tracks[d.trackId]) for (const t of d.tasks || []) { const date = doneMap(s, id)[t.id]; if (date) add(date, t.min); }
+ for (const x of Object.values(s.extras)) if (x.doneAt && !(x.source === "carry" && x.fromDayId && x.fromTaskId)) add(x.doneAt, x.min);
+ return out;
+}
+
 export function trackProgress(s: Store, tid: string, today: string) {
   let all = 0, done = 0, due = 0, dueDone = 0;
   for (const d of dayList(s).filter(d => d.trackId === tid)) for (const k of d.tasks || []) {
